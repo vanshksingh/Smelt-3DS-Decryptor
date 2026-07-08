@@ -11,6 +11,13 @@
 
 ---
 
+## 📥 Download
+
+**Looking to just use the app?**  
+Download the latest compiled version of Smelt for macOS from the [**Releases Page**](https://github.com/vanshksingh/Smelt-3DS-Decryptor/releases). Just download the `.zip`, extract it, and drag `Smelt.app` into your Applications folder!
+
+---
+
 **Smelt** is a professional SwiftUI frontend that bundles and coordinates standard open-source command-line toolchains (`ctrtool`, `makerom`, and `ctrdecrypt`). It is designed to take the headache out of preparing 3DS ROMs for modern emulators (like Azahar, Lime3DS, or Citra) on macOS by providing a seamless, drag-and-drop batch processing experience.
 
 Forget the terminal. Just drag your files in, and let Smelt forge them into shape.
