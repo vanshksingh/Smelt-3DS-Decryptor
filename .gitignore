@@ -1,0 +1,27 @@
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+Build/*.app
+Build/*.icns
+Build/*.iconset
+Build/Smelt*
+
+# Test directories and local scratchpads
+scratch/
+test/
+
+# Large binaries and emulators
+Emulators/
+ROMs/
+
+# User custom folders or logs
+*.log
+*.zip
+*.7z
