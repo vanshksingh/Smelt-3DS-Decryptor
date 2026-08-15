@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Smelt</h1>
+  <h1>🌋 Smelt</h1>
   <p><b>A beautifully native, high-performance macOS application for decrypting and patching Nintendo 3DS ROM files.</b></p>
 
   [![macOS](https://img.shields.io/badge/macOS-12.0%2B-black?logo=apple&style=for-the-badge)](#)
