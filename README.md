@@ -11,10 +11,20 @@
 
 ---
 
-## 📥 Download
+## 📥 Download & Installation
 
 **Looking to just use the app?**  
 Download the latest compiled version of Smelt for macOS from the [**Releases Page**](https://github.com/vanshksingh/Smelt-3DS-Decryptor/releases). Just download the `.zip`, extract it, and drag `Smelt.app` into your Applications folder!
+
+### ⚠️ macOS Gatekeeper Warning
+Because this app is not signed through an Apple Developer account, macOS Gatekeeper may show an **"unidentified developer"** warning or say the app is damaged. 
+
+To open the app, you must do **one** of the following:
+- **Right-click (or Control-click)** the `Smelt.app` icon in your Applications folder and select **Open**, OR
+- Open Terminal and run the following command to clear the quarantine flag:
+  ```bash
+  xattr -cr /Applications/Smelt.app
+  ```
 
 ---
 

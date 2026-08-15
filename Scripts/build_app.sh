@@ -81,9 +81,9 @@ cat << 'EOF' > "${BUNDLE_DIR}/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.0.1</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>2</string>
     <key>LSMinimumSystemVersion</key>
     <string>11.0</string>
     <key>NSHighResolutionCapable</key>
@@ -94,9 +94,12 @@ cat << 'EOF' > "${BUNDLE_DIR}/Contents/Info.plist"
 </plist>
 EOF
 
-# 7. Clear macOS security quarantine blocks
+# 7. Clear macOS security quarantine blocks & sign bundle
 echo " * De-quarantining application bundle..."
 xattr -d -r com.apple.quarantine "$BUNDLE_DIR" 2>/dev/null || true
+
+echo " * Signing application bundle (ad-hoc)..."
+codesign --force --deep --sign - "$BUNDLE_DIR"
 
 # 8. Copy app bundle to user Downloads folder for easy access
 echo " * Deploying application copy..."

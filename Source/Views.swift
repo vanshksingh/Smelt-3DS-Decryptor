@@ -626,7 +626,7 @@ struct StatusBarView: View {
                     .foregroundColor(ORG.opacity(0.8))
                     .transition(.opacity)
             } else {
-                Text("Smelt v1.0.0")
+                Text("Smelt v1.0.1")
                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.3))
                     .transition(.opacity)
