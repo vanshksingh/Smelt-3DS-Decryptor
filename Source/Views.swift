@@ -879,6 +879,27 @@ struct ContentView: View {
             LicenseView(isPresented: $showLicense)
                 .interactiveDismissDisabled()
         }
+        .onAppear {
+            DispatchQueue.global(qos: .background).async {
+                let bundlePath = Bundle.main.bundlePath
+                
+                // Strip quarantine recursively from the entire app bundle silently
+                let p1 = Process()
+                p1.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+                p1.arguments = ["-d", "-r", "com.apple.quarantine", bundlePath]
+                try? p1.run()
+                p1.waitUntilExit()
+                
+                // Ensure helper binaries have execute permissions
+                if let resourcesURL = Bundle.main.resourceURL {
+                    let p2 = Process()
+                    p2.executableURL = URL(fileURLWithPath: "/bin/chmod")
+                    p2.arguments = ["-R", "+x", resourcesURL.path]
+                    try? p2.run()
+                    p2.waitUntilExit()
+                }
+            }
+        }
     }
 }
 

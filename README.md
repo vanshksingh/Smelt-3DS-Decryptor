@@ -16,6 +16,8 @@
 **Looking to just use the app?**  
 Download the latest compiled version of Smelt for macOS from the [**Releases Page**](https://github.com/vanshksingh/Smelt-3DS-Decryptor/releases). Just download the `.zip`, extract it, and drag `Smelt.app` into your Applications folder!
 
+*Note: This release currently requires an **Apple Silicon (M1/M2/M3/M4)** Mac, as the underlying decryption toolchain is compiled for `arm64`. Intel Macs are not supported by the current pre-compiled `.zip` release.*
+
 ### macOS Gatekeeper Warning
 Because this app is not signed through an Apple Developer account, macOS Gatekeeper may show an **"unidentified developer"** warning or say the app is damaged.
 
@@ -28,7 +30,7 @@ If you encounter this warning, follow these simple steps to allow the app to run
 5. Click the **Open Anyway** button next to this message.
 6. Enter your Mac login password when prompted. The app will now launch and work smoothly from now on!
 
-*(Note: If the "Open Anyway" button doesn't appear, delete the app, re-download the `.zip` file from GitHub, and try again).*
+*(Note: If the "Open Anyway" button doesn't appear, try to open the app and close the popup again it will be available now).*
 
 ---
 
