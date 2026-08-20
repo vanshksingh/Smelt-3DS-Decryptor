@@ -128,8 +128,18 @@ struct HeaderView: View {
                             Label("Same as Source", systemImage: "doc.on.doc")
                         }
                         Button(action: {
-                            withAnimation { settings.mode = .custom }
-                            pickFolderAsync(s: settings)
+                            FilePickerHelper.pickOutputFolder(current: settings.folder) { selected in
+                                if let selected = selected {
+                                    withAnimation {
+                                        settings.folder = selected
+                                        settings.mode = .custom
+                                    }
+                                } else if settings.folder == nil {
+                                    withAnimation {
+                                        settings.mode = .same
+                                    }
+                                }
+                            }
                         }) {
                             Label("Choose Custom Folder...", systemImage: "folder.badge.plus")
                         }
@@ -246,27 +256,101 @@ struct HeaderView: View {
             .overlay(Rectangle().frame(height: 1).foregroundColor(BRD), alignment: .bottom)
         }
     }
-    
-    private func pickFolderAsync(s: Settings) {
-        let p = NSOpenPanel()
-        p.canChooseFiles = false
-        p.canChooseDirectories = true
-        p.allowsMultipleSelection = false
-        p.prompt = "Select Output"
-        p.message = "Choose where decrypted/patched ROMs will be saved"
-        
-        let completion: (NSApplication.ModalResponse) -> Void = { response in
+}
+
+// MARK: - File & Folder Picker Engine
+struct FilePickerHelper {
+    static func openFiles(completion: @escaping ([URL]) -> Void) {
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            let panel = NSOpenPanel()
+            panel.allowsMultipleSelection = true
+            panel.canChooseDirectories = true
+            panel.canChooseFiles = true
+            panel.resolvesAliases = true
+            panel.allowsOtherFileTypes = true
+            panel.canCreateDirectories = false
+            panel.prompt = "Add to Queue"
+            panel.message = "Select 3DS ROM files, CIA packages, or folders containing them"
+            
+            var types: [UTType] = [.data, .item, .content, .folder]
+            for ext in ["3ds", "cia", "cci", "cxi"] {
+                if let t = UTType(filenameExtension: ext) {
+                    types.append(t)
+                }
+            }
+            panel.allowedContentTypes = types
+            
+            let response = panel.runModal()
             if response == .OK {
-                DispatchQueue.main.async { s.folder = p.url }
-            } else if s.folder == nil {
-                DispatchQueue.main.async { s.mode = .same }
+                completion(panel.urls)
+            }
+        }
+    }
+    
+    static func pickOutputFolder(current: URL?, completion: @escaping (URL?) -> Void) {
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            let panel = NSOpenPanel()
+            panel.canChooseFiles = false
+            panel.canChooseDirectories = true
+            panel.allowsMultipleSelection = false
+            panel.canCreateDirectories = true
+            panel.resolvesAliases = true
+            panel.prompt = "Select Output"
+            panel.message = "Choose destination directory for forged ROMs"
+            if let current = current {
+                panel.directoryURL = current
+            }
+            
+            let response = panel.runModal()
+            if response == .OK {
+                completion(panel.url)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    static func extractDropURLs(from providers: [NSItemProvider], completion: @escaping ([URL]) -> Void) {
+        let group = DispatchGroup()
+        var collectedURLs: [URL] = []
+        let lock = NSLock()
+        
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                group.enter()
+                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                    defer { group.leave() }
+                    var targetURL: URL? = nil
+                    if let url = item as? URL {
+                        targetURL = url
+                    } else if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
+                        targetURL = url
+                    } else if let str = item as? String {
+                        targetURL = URL(fileURLWithPath: str)
+                    }
+                    if let u = targetURL {
+                        lock.lock()
+                        collectedURLs.append(u)
+                        lock.unlock()
+                    }
+                }
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                group.enter()
+                provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { item, _ in
+                    defer { group.leave() }
+                    if let url = item as? URL, url.isFileURL {
+                        lock.lock()
+                        collectedURLs.append(url)
+                        lock.unlock()
+                    }
+                }
             }
         }
         
-        if let window = NSApplication.shared.windows.first {
-            p.beginSheetModal(for: window, completionHandler: completion)
-        } else {
-            p.begin(completionHandler: completion)
+        group.notify(queue: .main) {
+            completion(collectedURLs)
         }
     }
 }
@@ -328,15 +412,12 @@ struct DropZone: View {
                 .padding(.top, 10)
             }
         }
-        .onDrop(of: [.fileURL], isTargeted: $tgt, perform: drop)
-    }
-    
-    private func drop(_ pr:[NSItemProvider])->Bool {
-        let g=DispatchGroup(); var urls:[URL]=[]
-        for p in pr { g.enter(); p.loadItem(forTypeIdentifier:UTType.fileURL.identifier){i,_ in defer{g.leave()}
-            if let d=i as? Data, let u=URL(dataRepresentation:d,relativeTo:nil){urls.append(u)}
-            else if let u=i as? URL{urls.append(u)} }}
-        g.notify(queue:.main){ st.add(urls) }; return true
+        .onDrop(of: [.fileURL, .url], isTargeted: $tgt) { providers in
+            FilePickerHelper.extractDropURLs(from: providers) { urls in
+                st.add(urls)
+            }
+            return true
+        }
     }
 }
 
@@ -648,8 +729,12 @@ struct MainContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             if st.files.isEmpty {
-                DropZone(st: st, browse: openPicker)
-                    .padding(32)
+                DropZone(st: st, browse: {
+                    FilePickerHelper.openFiles { urls in
+                        st.add(urls)
+                    }
+                })
+                .padding(32)
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
@@ -665,7 +750,11 @@ struct MainContentView: View {
                 .frame(maxHeight: .infinity)
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: st.files)
                 
-                Button(action: openPicker) {
+                Button(action: {
+                    FilePickerHelper.openFiles { urls in
+                        st.add(urls)
+                    }
+                }) {
                     HStack(spacing: 8) {
                         Image(systemName: "plus.circle.fill").font(.system(size: 15)).foregroundColor(BLU)
                         Text("Drop more files here or click to browse").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.7))
@@ -689,34 +778,11 @@ struct MainContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.opacity(0.01))
-        .onDrop(of: [.fileURL], isTargeted: $tgt, perform: drop)
-    }
-    
-    private func drop(_ pr:[NSItemProvider])->Bool {
-        let g=DispatchGroup(); var urls:[URL]=[]
-        for p in pr { g.enter(); p.loadItem(forTypeIdentifier:UTType.fileURL.identifier){i,_ in defer{g.leave()}
-            if let d=i as? Data, let u=URL(dataRepresentation:d,relativeTo:nil){urls.append(u)}
-            else if let u=i as? URL{urls.append(u)} }}
-        g.notify(queue:.main){ st.add(urls) }; return true
-    }
-    
-    private func openPicker() {
-        let p = NSOpenPanel()
-        p.allowsMultipleSelection = true
-        p.canChooseDirectories = true
-        p.canChooseFiles = true
-        p.allowedContentTypes = (["3ds", "cia", "cci", "cxi"].compactMap { UTType(filenameExtension: $0) }) + [.folder]
-        p.prompt = "Add to Queue"
-        p.message = "Select 3DS ROM files, CIA packages, or folders containing them"
-        
-        let completion: (NSApplication.ModalResponse) -> Void = { response in
-            if response == .OK { st.add(p.urls) }
-        }
-        
-        if let window = NSApplication.shared.windows.first {
-            p.beginSheetModal(for: window, completionHandler: completion)
-        } else {
-            p.begin(completionHandler: completion)
+        .onDrop(of: [.fileURL, .url], isTargeted: $tgt) { providers in
+            FilePickerHelper.extractDropURLs(from: providers) { urls in
+                st.add(urls)
+            }
+            return true
         }
     }
 }
