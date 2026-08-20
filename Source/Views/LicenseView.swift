@@ -1,9 +1,24 @@
 import SwiftUI
+import AppKit
 
-struct LicenseView: View {
-    @Binding var isPresented: Bool
+struct LicenseGate: View {
+    var onAgree: () -> Void
     @Environment(\.palette) private var palette
     @State private var hasAcceptedCheckbox = false
+
+    var body: some View {
+        ZStack {
+            palette.background.ignoresSafeArea()
+            LicenseView(checkbox: $hasAcceptedCheckbox, onAgree: onAgree)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct LicenseView: View {
+    @Binding var checkbox: Bool
+    var onAgree: () -> Void
+    @Environment(\.palette) private var palette
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,7 +59,7 @@ struct LicenseView: View {
 
                     Divider().background(palette.border).padding(.vertical, 8)
 
-                    Toggle(isOn: $hasAcceptedCheckbox) {
+                    Toggle(isOn: $checkbox) {
                         Text("I certify that I have read the terms and agree to be bound by them.")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(palette.textPrimary)
@@ -59,7 +74,7 @@ struct LicenseView: View {
 
             HStack(spacing: 12) {
                 Spacer()
-                Button { exit(0) } label: {
+                Button { NSApp.terminate(nil) } label: {
                     Text("Disagree & Exit")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(palette.textSecondary)
@@ -69,28 +84,26 @@ struct LicenseView: View {
                 }
                 .buttonStyle(.plain)
 
-                Button {
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        isPresented = false
-                    }
-                } label: {
+                Button(action: onAgree) {
                     Text("Agree & Open")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(hasAcceptedCheckbox ? palette.onAccent : palette.textFaint)
+                        .foregroundColor(checkbox ? palette.onAccent : palette.textFaint)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(hasAcceptedCheckbox ? Palette.green : palette.chipFill))
+                        .background(RoundedRectangle(cornerRadius: 8).fill(checkbox ? Palette.green : palette.chipFill))
                 }
                 .buttonStyle(.plain)
-                .disabled(!hasAcceptedCheckbox)
+                .disabled(!checkbox)
             }
             .padding(24)
         }
-        .frame(width: 600, height: 480)
+        .frame(maxWidth: 720)
+        .frame(maxHeight: 560)
         .background(palette.licenseFill)
         .cornerRadius(16)
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(palette.border, lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 24, y: 8)
+        .padding(32)
     }
 
     private func section(_ title: String, _ body: String) -> some View {

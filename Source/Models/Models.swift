@@ -2,7 +2,7 @@ import SwiftUI
 
 enum AppInfo {
     static let name = "Smelt"
-    static let version = "1.1.0"
+    static let version = "1.0.2"
 }
 
 enum Analysis: String {

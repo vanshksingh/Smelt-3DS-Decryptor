@@ -172,6 +172,7 @@ struct ROMProcessor {
             name = "\(rom.url.deletingPathExtension().lastPathComponent)\(settings.suffix).\(rom.url.pathExtension)"
         }
         if settings.mode == .custom, let folder = settings.folder {
+            _ = folder.startAccessingSecurityScopedResource()
             return folder.appendingPathComponent(name)
         }
         return rom.url.deletingLastPathComponent().appendingPathComponent(name)

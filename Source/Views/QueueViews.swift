@@ -4,71 +4,66 @@ struct DropZone: View {
     @ObservedObject var st: AppState
     @Environment(\.palette) private var palette
     @State private var targeted = false
-    let browse: () -> Void
 
     var body: some View {
-        Button(action: browse) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(targeted ? palette.dropFillActive : palette.dropFill)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .strokeBorder(
-                                targeted
-                                    ? LinearGradient(colors: [Palette.blue, Palette.purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-                                    : LinearGradient(colors: [palette.dropStroke], startPoint: .top, endPoint: .bottom),
-                                style: StrokeStyle(lineWidth: 2, dash: [10, 6])
-                            )
-                    )
-
-                VStack(spacing: 20) {
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient(
-                                colors: [Palette.blue.opacity(0.2), Palette.purple.opacity(0.2)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                            .frame(width: 100, height: 100)
-                            .scaleEffect(targeted ? 1.1 : 1.0)
-                            .opacity(targeted ? 1 : 0.5)
-
-                        Image(systemName: targeted ? "tray.and.arrow.down.fill" : "arrow.down.doc.fill")
-                            .font(.system(size: 42, weight: .light))
-                            .foregroundStyle(LinearGradient(colors: [Palette.blue, Palette.purple], startPoint: .top, endPoint: .bottom))
-                            .shadow(color: Palette.blue.opacity(targeted ? 0.6 : 0), radius: 12)
-                            .offset(y: targeted ? 4 : 0)
+        ZStack {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(targeted ? palette.dropFillActive : palette.dropFill)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .strokeBorder(
+                            targeted
+                                ? LinearGradient(colors: [Palette.blue, Palette.purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                : LinearGradient(colors: [palette.dropStroke], startPoint: .top, endPoint: .bottom),
+                            style: StrokeStyle(lineWidth: 2, dash: [10, 6])
+                        )
+                )
+                .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
+                    DropService.collect(providers) { urls in
+                        st.add(urls)
                     }
-                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: targeted)
-
-                    VStack(spacing: 8) {
-                        Text("Drag & Drop ROMs or Folders")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundColor(palette.textPrimary)
-                        Text("Supports .3ds, .cia, .cci, .cxi files and directories")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(palette.textTertiary)
-                    }
-
-                    Text("Browse Files...")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .foregroundColor(palette.textPrimary)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(palette.fieldFill))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.border, lineWidth: 1))
-                        .padding(.top, 10)
+                    return true
                 }
+
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [Palette.blue.opacity(0.2), Palette.purple.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 110, height: 110)
+                        .scaleEffect(targeted ? 1.1 : 1.0)
+                        .opacity(targeted ? 1 : 0.5)
+
+                    Image(systemName: targeted ? "tray.and.arrow.down.fill" : "arrow.down.doc.fill")
+                        .font(.system(size: 44, weight: .light))
+                        .foregroundStyle(LinearGradient(colors: [Palette.blue, Palette.purple], startPoint: .top, endPoint: .bottom))
+                        .shadow(color: Palette.blue.opacity(targeted ? 0.6 : 0), radius: 12)
+                        .offset(y: targeted ? 4 : 0)
+                }
+                .animation(.spring(response: 0.4, dampingFraction: 0.6), value: targeted)
+
+                VStack(spacing: 10) {
+                    Text("Drag & Drop ROMs or Folders")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(palette.textPrimary)
+                        .multilineTextAlignment(.center)
+                    Text("Supports .3ds, .cia, .cci, .cxi files and directories")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(palette.textTertiary)
+                        .multilineTextAlignment(.center)
+                }
+
+                BrowseFilesButton { st.add($0) }
+                    .fixedSize()
+                    .padding(.top, 8)
             }
+            .padding(.vertical, 36)
+            .padding(.horizontal, 24)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Browse for ROM files")
-        .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
-            DropService.collect(providers) { urls in
-                st.add(urls)
-            }
-            return true
-        }
+        .frame(minHeight: 320)
     }
 }
 
@@ -293,8 +288,10 @@ struct MainContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             if st.files.isEmpty {
-                DropZone(st: st, browse: openPicker)
-                    .padding(32)
+                DropZone(st: st)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     VStack(spacing: 12) {
@@ -305,34 +302,43 @@ struct MainContentView: View {
                             .transition(.scale(scale: 0.95).combined(with: .opacity))
                         }
                     }
-                    .padding(24)
+                    .padding(20)
                 }
                 .frame(maxHeight: .infinity)
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: st.files.map(\.id))
 
-                Button(action: openPicker) {
+                HStack(spacing: 12) {
                     HStack(spacing: 8) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 15))
                             .foregroundColor(Palette.blue)
-                        Text("Drop more files here or click to browse")
+                        Text("Drop more files here")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(palette.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(targeted ? Palette.blue.opacity(0.15) : palette.dropFill)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .stroke(targeted ? Palette.blue : palette.dropStroke, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
-                            )
-                    )
+
+                    BrowseFilesButton { st.add($0) }
+                        .fixedSize()
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(targeted ? Palette.blue.opacity(0.15) : palette.dropFill)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(targeted ? Palette.blue : palette.dropStroke, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
+                        )
+                )
+                .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
+                    DropService.collect(providers) { urls in
+                        st.add(urls)
+                    }
+                    return true
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 16)
             }
 
             ConsoleView(st: st)
@@ -340,17 +346,5 @@ struct MainContentView: View {
                 .clipped()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
-            DropService.collect(providers) { urls in
-                st.add(urls)
-            }
-            return true
-        }
-    }
-
-    private func openPicker() {
-        FilePickerService.openFiles { urls in
-            st.add(urls)
-        }
     }
 }

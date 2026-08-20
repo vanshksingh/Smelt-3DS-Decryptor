@@ -9,6 +9,28 @@ final class AppState: ObservableObject {
     let settings = Settings()
     let scopedAccess = SecurityScopedAccess()
 
+    init() {
+        if let folder = settings.folder {
+            scopedAccess.retain(folder)
+        }
+    }
+
+    func setCustomOutputFolder(_ url: URL) {
+        if let existing = settings.folder {
+            scopedAccess.release(existing)
+        }
+        let retained = scopedAccess.retain(url)
+        settings.setCustomFolder(retained)
+    }
+
+    func useSameOutputFolder() {
+        if let existing = settings.folder {
+            scopedAccess.release(existing)
+            settings.folder = nil
+        }
+        settings.useSameAsSource()
+    }
+
     var pendingCount: Int {
         files.filter { $0.state == .queued || $0.state == .failed }.count
     }
@@ -181,6 +203,15 @@ final class AppState: ObservableObject {
             log(error.localizedDescription)
             settings.showConsole = true
             return
+        }
+
+        if settings.mode == .custom {
+            guard settings.customFolderIsValid, let folder = settings.folder else {
+                log("Custom output folder is missing or not writable. Choose another destination.")
+                settings.showConsole = true
+                return
+            }
+            log("Output destination: \(folder.path)")
         }
 
         busy = true

@@ -4,7 +4,6 @@ import AppKit
 struct HeaderView: View {
     @ObservedObject var st: AppState
     @ObservedObject var settings: Settings
-    @ObservedObject var theme: ThemeManager
     @Environment(\.palette) private var palette
 
     var pending: Int { st.pendingCount }
@@ -31,130 +30,144 @@ struct HeaderView: View {
                     .frame(height: 80)
 
                 HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Smelt")
-                            .font(.system(size: 32, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.4), radius: 6, y: 3)
-                        Text("3DS Decryptor & Flag Injector")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
+                    titleBlock
                     Spacer()
-
-                    Button(action: st.run) {
-                        HStack(spacing: 8) {
-                            if st.busy {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                                    .scaleEffect(0.55)
-                                    .frame(width: 14, height: 14)
-                            } else {
-                                Image(systemName: "bolt.fill")
-                            }
-                            Text(st.busy ? "Smelting..." : "Smelt All\(pending > 0 ? " (\(pending))" : "")")
-                        }
-                    }
-                    .buttonStyle(PrimarySmeltButtonStyle(isBusy: st.busy, hasPending: pending > 0))
-                    .disabled(st.busy || pending == 0)
+                    smeltButton
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
             }
             .frame(height: 140)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    destinationMenu
-                    toolbarDivider
-                    suffixField
-                    toolbarDivider
-                    formatPicker
-                    toolbarDivider
-
-                    Toggle("Reveal in Finder", isOn: $settings.autoOpen)
-                        .toggleStyle(.checkbox)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(palette.textSecondary)
-
-                    Toggle("Console", isOn: $settings.showConsole)
-                        .toggleStyle(.checkbox)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(palette.textSecondary)
-
-                    appearanceMenu
-                    Spacer()
-                    queueActions
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
+            CenteredFlowLayout(spacing: 12, rowSpacing: 10) {
+                destinationMenu
+                suffixField
+                formatPicker
+                Toggle("Reveal in Finder", isOn: $settings.autoOpen)
+                    .toggleStyle(.checkbox)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(palette.textSecondary)
+                    .fixedSize()
+                Toggle("Console", isOn: $settings.showConsole)
+                    .toggleStyle(.checkbox)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(palette.textSecondary)
+                    .fixedSize()
+                queueActions
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
             .background(palette.toolbarFill)
             .overlay(Rectangle().frame(height: 1).foregroundColor(palette.border), alignment: .bottom)
         }
     }
 
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Smelt")
+                .font(.system(size: 32, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.4), radius: 6, y: 3)
+            Text("3DS Decryptor & Flag Injector")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(.white.opacity(0.7))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+    }
+
+    private var smeltButton: some View {
+        Button(action: st.run) {
+            HStack(spacing: 8) {
+                if st.busy {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.55)
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "bolt.fill")
+                }
+                Text(st.busy ? "Smelting..." : "Smelt All\(pending > 0 ? " (\(pending))" : "")")
+            }
+        }
+        .buttonStyle(PrimarySmeltButtonStyle(isBusy: st.busy, hasPending: pending > 0))
+        .disabled(st.busy || pending == 0)
+        .contentShape(Rectangle())
+    }
+
     private var destinationMenu: some View {
         Menu {
             Button {
-                withAnimation { settings.mode = .same }
+                withAnimation { st.useSameOutputFolder() }
             } label: {
                 Label("Same as Source", systemImage: "doc.on.doc")
             }
             Button {
-                FilePickerService.pickOutputFolder(current: settings.folder) { selected in
-                    if let selected {
-                        withAnimation {
-                            settings.folder = st.scopedAccess.retain(selected)
-                            settings.mode = .custom
-                        }
-                    } else if settings.folder == nil {
-                        withAnimation { settings.mode = .same }
-                    }
-                }
+                pickCustomOutputFolder()
             } label: {
                 Label("Choose Custom Folder...", systemImage: "folder.badge.plus")
             }
         } label: {
-            HStack(spacing: 6) {
-                Text("Destination:")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(palette.textTertiary)
-
-                if settings.mode == .same {
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 10))
-                        .foregroundColor(Palette.blue)
-                    Text("Same as Source")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(palette.textPrimary)
-                } else if let folder = settings.folder {
-                    Image(systemName: "folder.fill")
-                        .font(.system(size: 10))
-                        .foregroundColor(Palette.blue)
-                    Text(folder.lastPathComponent)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Palette.blue)
-                } else {
-                    Image(systemName: "folder.badge.plus")
-                        .font(.system(size: 10))
-                        .foregroundColor(Palette.orange)
-                    Text("Choose Folder...")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Palette.orange)
-                }
-
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 8))
-                    .foregroundColor(palette.textFaint)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(RoundedRectangle(cornerRadius: 6).fill(palette.chipFill))
+            destinationChip
         }
         .buttonStyle(.plain)
         .focusable(false)
         .fixedSize()
+    }
+
+    private var destinationChip: some View {
+        HStack(spacing: 6) {
+            Text("Destination:")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(palette.textTertiary)
+
+            if settings.mode == .same {
+                Image(systemName: "doc.on.doc")
+                    .font(.system(size: 10))
+                    .foregroundColor(Palette.blue)
+                Text("Same as Source")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(palette.textPrimary)
+            } else if let folder = settings.folder {
+                Image(systemName: "folder.fill")
+                    .font(.system(size: 10))
+                    .foregroundColor(Palette.blue)
+                Text(folder.lastPathComponent)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Palette.blue)
+            } else {
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 10))
+                    .foregroundColor(Palette.orange)
+                Text("Choose Folder...")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Palette.orange)
+            }
+
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.system(size: 8))
+                .foregroundColor(palette.textFaint)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(RoundedRectangle(cornerRadius: 6).fill(palette.chipFill))
+    }
+
+    private func pickCustomOutputFolder() {
+        FilePickerService.pickOutputFolder(current: settings.folder) { selected in
+            DispatchQueue.main.async {
+                if let selected {
+                    withAnimation {
+                        st.setCustomOutputFolder(selected)
+                    }
+                } else if settings.folder == nil {
+                    withAnimation {
+                        st.useSameOutputFolder()
+                    }
+                }
+            }
+        }
     }
 
     private var suffixField: some View {
@@ -193,40 +206,6 @@ struct HeaderView: View {
         }
     }
 
-    private var appearanceMenu: some View {
-        Menu {
-            ForEach(AppearancePreference.allCases) { mode in
-                Button {
-                    theme.preference = mode
-                } label: {
-                    if theme.preference == mode {
-                        Label(mode.label, systemImage: "checkmark")
-                    } else {
-                        Text(mode.label)
-                    }
-                }
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: theme.preference.icon)
-                    .font(.system(size: 10))
-                    .foregroundColor(Palette.blue)
-                Text(theme.preference.label)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(palette.textPrimary)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 8))
-                    .foregroundColor(palette.textFaint)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(RoundedRectangle(cornerRadius: 6).fill(palette.chipFill))
-        }
-        .buttonStyle(.plain)
-        .focusable(false)
-        .help("Appearance")
-    }
-
     private var queueActions: some View {
         HStack(spacing: 8) {
             let hasDone = st.files.contains { $0.state == .done || $0.state == .skipped }
@@ -252,9 +231,5 @@ struct HeaderView: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-    }
-
-    private var toolbarDivider: some View {
-        Divider().frame(height: 16).background(palette.border)
     }
 }

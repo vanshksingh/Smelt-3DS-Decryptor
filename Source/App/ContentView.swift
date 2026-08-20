@@ -1,49 +1,53 @@
 import SwiftUI
+import AppKit
 
 struct ContentView: View {
-    @StateObject private var st = AppState()
-    @StateObject private var theme = ThemeManager()
-    @AppStorage("hasAcceptedEULA_v1") private var hasAcceptedEULA = false
-    @Environment(\.colorScheme) private var systemScheme
+    @State private var hasAcceptedEULA = false
+    @Environment(\.colorScheme) private var colorScheme
 
-    private var resolvedScheme: ColorScheme {
-        theme.resolvedScheme(system: systemScheme)
+    private var palette: Palette {
+        Palette(scheme: colorScheme)
     }
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                HeaderView(st: st, settings: st.settings, theme: theme)
-                MainContentView(st: st, settings: st.settings)
-                StatusBarView(st: st)
-            }
-            .background(Palette(scheme: resolvedScheme).background)
-            .allowsHitTesting(hasAcceptedEULA)
-            .opacity(hasAcceptedEULA ? 1 : 0.35)
-
-            if !hasAcceptedEULA {
-                Palette(scheme: resolvedScheme).overlayScrim
-                    .ignoresSafeArea()
-
-                LicenseView(isPresented: Binding(
-                    get: { !hasAcceptedEULA },
-                    set: { presented in
-                        withAnimation(.easeOut(duration: 0.25)) {
-                            hasAcceptedEULA = !presented
-                        }
-                    }
-                ))
-                .zIndex(100)
+        Group {
+            if hasAcceptedEULA {
+                MainWorkspace()
+            } else {
+                LicenseGate {
+                    hasAcceptedEULA = true
+                }
             }
         }
-        .frame(minWidth: 840, minHeight: 560)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .environment(\.palette, Palette(scheme: resolvedScheme))
-        .environmentObject(theme)
-        .preferredColorScheme(theme.preference.colorScheme)
+        .frame(minWidth: 840, idealWidth: 920, minHeight: 560, idealHeight: 640)
+        .background(palette.background.ignoresSafeArea())
+        .background(WindowSyncView())
+        .environment(\.palette, palette)
+        .onAppear {
+            UserDefaults.standard.removeObject(forKey: "hasAcceptedEULA_v1")
+            UserDefaults.standard.removeObject(forKey: "appearancePreference")
+        }
+    }
+}
+
+struct MainWorkspace: View {
+    @StateObject private var st = AppState()
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HeaderView(st: st, settings: st.settings)
+            MainContentView(st: st, settings: st.settings)
+            StatusBarView(st: st)
+        }
+        .background(palette.background)
+        .onAppear {
+            NSApp.windows.forEach { WindowInteraction.fillContentView($0) }
+            NSApp.windows.forEach { WindowInteraction.refreshTracking(in: $0.contentView) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .openROMPicker)) { _ in
-            guard hasAcceptedEULA, !st.busy else { return }
-            FilePickerService.openFiles { urls in
+            guard !st.busy else { return }
+            FilePickerService.openFiles(from: NSApp.keyWindow) { urls in
                 st.add(urls)
             }
         }

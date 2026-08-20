@@ -73,7 +73,6 @@ fi
 swiftc \
     -sdk "$SDK_PATH" \
     -parse-as-library \
-    -target arm64-apple-macos12.0 \
     "${SWIFT_SOURCES[@]}" \
     -o "${BUNDLE_DIR}/Contents/MacOS/Smelt"
 
@@ -97,17 +96,15 @@ cat << 'EOF' > "${BUNDLE_DIR}/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1.0</string>
+    <string>1.0.2</string>
     <key>CFBundleVersion</key>
-    <string>4</string>
+    <string>3</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSSupportsSuddenTermination</key>
     <false/>
-    <key>NSPrincipalClass</key>
-    <string>NSApplication</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleDocumentTypes</key>
@@ -149,7 +146,16 @@ echo " * Refreshing system Launch Services registration..."
 touch "$HOME/Downloads/${APP_NAME}.app"
 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f "$HOME/Downloads/${APP_NAME}.app"
 
+# 10. Package release zip for distribution/testing
+APP_VERSION="$(defaults read "${BUNDLE_DIR}/Contents/Info" CFBundleShortVersionString)"
+ZIP_PATH="${WORKSPACE_DIR}/${APP_NAME}_macOS_v${APP_VERSION}.zip"
+echo " * Packaging ${APP_NAME}_macOS_v${APP_VERSION}.zip..."
+xattr -cr "$BUNDLE_DIR" 2>/dev/null || true
+rm -f "$ZIP_PATH"
+ditto -c -k --keepParent --sequesterRsrc "$BUNDLE_DIR" "$ZIP_PATH"
+
 echo "=== Build and Deployment Complete! ==="
 echo "App is available at:"
 echo "1. ${BUNDLE_DIR}  (Build Output)"
 echo "2. $HOME/Downloads/${APP_NAME}.app  (Downloads Directory)"
+echo "3. ${ZIP_PATH}  (Release Zip)"
