@@ -144,44 +144,119 @@ class SmeltNextApplication {
       }
     });
 
-    // 6. Hardware Button Bindings (New 3DS XL)
-    document.getElementById('btn-hw-a')?.addEventListener('click', () => {
-      // Forge All (or Forge next single if implemented)
+    // 6. Clock Initialization & Telemetry
+    const clockEl = document.getElementById('sys-clock');
+    const updateClock = () => {
+      if (clockEl) {
+        clockEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    };
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const threadsEl = document.getElementById('hud-threads');
+    if (threadsEl) {
+      const cores = navigator.hardwareConcurrency || 4;
+      threadsEl.textContent = `Active (${cores}-Core)`;
+    }
+
+    // 7. Eject & View Toggle
+    const toggleToDropzone = () => {
+      const viewDropzone = document.getElementById('view-dropzone');
+      const viewQueue = document.getElementById('view-queue');
+      if (viewDropzone && viewQueue) {
+        viewQueue.classList.remove('active');
+        viewDropzone.classList.add('active');
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Card tray ejected. Switched to Dropzone.' });
+      }
+    };
+
+    const toggleToQueue = () => {
+      const viewDropzone = document.getElementById('view-dropzone');
+      const viewQueue = document.getElementById('view-queue');
+      if (viewDropzone && viewQueue) {
+        viewDropzone.classList.remove('active');
+        viewQueue.classList.add('active');
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Switched to Active Queue.' });
+      }
+    };
+
+    document.getElementById('btn-eject-top')?.addEventListener('click', toggleToDropzone);
+
+    // 8. Hardware & Touch Button Bindings
+    // A Button / Touch Forge
+    const handleForgeAll = () => {
       document.getElementById('btn-forge-all')?.click();
-    });
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'A Button pressed: Triggered Forge All.' });
+    };
+    document.getElementById('btn-hw-a')?.addEventListener('click', handleForgeAll);
+    document.getElementById('touch-btn-forge')?.addEventListener('click', handleForgeAll);
 
-    document.getElementById('btn-hw-b')?.addEventListener('click', () => {
-      // Clear queue
+    // B Button / Touch Clear
+    const handleClearQueue = () => {
       document.getElementById('btn-clear-all')?.click();
-    });
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'B Button pressed: Cleared Active Queue.' });
+    };
+    document.getElementById('btn-hw-b')?.addEventListener('click', handleClearQueue);
+    document.getElementById('touch-btn-clear')?.addEventListener('click', handleClearQueue);
 
-    document.getElementById('btn-hw-x')?.addEventListener('click', () => {
-      // Cycle formats
+    // X Button / Touch Format Cycle
+    const handleCycleFormat = () => {
       const select = document.getElementById('select-format');
       if (select) {
         select.selectedIndex = (select.selectedIndex + 1) % select.options.length;
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: `X Button pressed: Format set to ${select.options[select.selectedIndex].text}` });
+      }
+    };
+    document.getElementById('btn-hw-x')?.addEventListener('click', handleCycleFormat);
+    document.getElementById('touch-btn-format')?.addEventListener('click', handleCycleFormat);
+
+    // Y Button (Toggle Auto-Download)
+    document.getElementById('btn-hw-y')?.addEventListener('click', () => {
+      const check = document.getElementById('check-auto-download');
+      if (check) {
+        check.checked = !check.checked;
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: `Y Button pressed: Auto-Save is now ${check.checked ? 'ENABLED' : 'DISABLED'}` });
       }
     });
 
-    document.getElementById('btn-hw-y')?.addEventListener('click', () => {
-      // Toggle auto-download
-      const check = document.getElementById('check-auto-download');
-      if (check) check.checked = !check.checked;
-    });
-
-    document.getElementById('btn-hw-select')?.addEventListener('click', () => {
-      // Clear console
+    // Select Button / Touch Clear Log
+    const handleClearLog = () => {
       document.getElementById('btn-clear-console')?.click();
-    });
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Console output cleared.' });
+    };
+    document.getElementById('btn-hw-select')?.addEventListener('click', handleClearLog);
+    document.getElementById('btn-touch-clear-log')?.addEventListener('click', handleClearLog);
 
-    document.getElementById('btn-hw-start')?.addEventListener('click', () => {
-      // Export console
+    // Start Button / Touch Export Log
+    const handleExportLog = () => {
       document.getElementById('btn-export-console')?.click();
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Console logs exported to disk.' });
+    };
+    document.getElementById('btn-hw-start')?.addEventListener('click', handleExportLog);
+    document.getElementById('btn-touch-export-log')?.addEventListener('click', handleExportLog);
+
+    // HOME Button (Toggle between Dropzone & Queue)
+    document.getElementById('btn-hw-home')?.addEventListener('click', () => {
+      const viewDropzone = document.getElementById('view-dropzone');
+      if (viewDropzone?.classList.contains('active')) {
+        toggleToQueue();
+      } else {
+        toggleToDropzone();
+      }
     });
 
-    document.getElementById('btn-hw-home')?.addEventListener('click', () => {
-      // If we had a Home menu, we'd open it here. For now, just log.
-      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'HOME button pressed.' });
+    // D-Pad Scroll Handlers
+    const queueList = document.getElementById('queue-list');
+    const consoleOutput = document.getElementById('console-output');
+
+    document.getElementById('dpad-up')?.addEventListener('click', () => {
+      queueList?.scrollBy({ top: -60, behavior: 'smooth' });
+      consoleOutput?.scrollBy({ top: -60, behavior: 'smooth' });
+    });
+    document.getElementById('dpad-down')?.addEventListener('click', () => {
+      queueList?.scrollBy({ top: 60, behavior: 'smooth' });
+      consoleOutput?.scrollBy({ top: 60, behavior: 'smooth' });
     });
   }
 }
