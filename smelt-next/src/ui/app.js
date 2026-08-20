@@ -125,6 +125,46 @@ class SmeltNextApplication {
         this.downloadService.downloadBlob(resultBlob, finalFilename);
       }
     });
+
+    // 6. Hardware Button Bindings (New 3DS XL)
+    document.getElementById('btn-hw-a')?.addEventListener('click', () => {
+      // Forge All (or Forge next single if implemented)
+      document.getElementById('btn-forge-all')?.click();
+    });
+
+    document.getElementById('btn-hw-b')?.addEventListener('click', () => {
+      // Clear queue
+      document.getElementById('btn-clear-all')?.click();
+    });
+
+    document.getElementById('btn-hw-x')?.addEventListener('click', () => {
+      // Cycle formats
+      const select = document.getElementById('select-format');
+      if (select) {
+        select.selectedIndex = (select.selectedIndex + 1) % select.options.length;
+      }
+    });
+
+    document.getElementById('btn-hw-y')?.addEventListener('click', () => {
+      // Toggle auto-download
+      const check = document.getElementById('check-auto-download');
+      if (check) check.checked = !check.checked;
+    });
+
+    document.getElementById('btn-hw-select')?.addEventListener('click', () => {
+      // Clear console
+      document.getElementById('btn-clear-console')?.click();
+    });
+
+    document.getElementById('btn-hw-start')?.addEventListener('click', () => {
+      // Export console
+      document.getElementById('btn-export-console')?.click();
+    });
+
+    document.getElementById('btn-hw-home')?.addEventListener('click', () => {
+      // If we had a Home menu, we'd open it here. For now, just log.
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'HOME button pressed.' });
+    });
   }
 }
 
