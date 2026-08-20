@@ -388,14 +388,14 @@ body {
   opacity: 1;
 }
 
-/* Physical 3DS Cartridge Insertion Animation */
+/* Physical 3DS Cartridge Insertion Animation (Enters from Right Side) */
 .cartridge-insert-anim {
   position: absolute;
-  top: -180px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 130px;
-  height: 150px;
+  top: 50%;
+  right: -200px;
+  transform: translateY(-50%);
+  width: 140px;
+  height: 130px;
   z-index: 50;
   opacity: 0;
   pointer-events: none;
@@ -405,26 +405,27 @@ body {
   height: 100%;
   background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
   border: 2px solid #94a3b8;
-  border-radius: 8px 8px 4px 4px;
+  border-radius: 8px;
   box-shadow: 0 12px 28px rgba(0,0,0,0.6);
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 14px;
+  justify-content: center;
+  padding: 10px;
 }
 .cartridge-notch {
   position: absolute;
   top: 0;
   right: 0;
-  width: 16px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   background: #94a3b8;
   border-radius: 0 6px 0 6px;
 }
 .cartridge-label-sticker {
   width: 100px;
-  height: 105px;
+  height: 90px;
   background: linear-gradient(135deg, #1e293b, #0f172a);
   border-radius: 4px;
   border: 1.5px solid #00d2ff;
@@ -447,15 +448,15 @@ body {
 }
 
 .cartridge-insert-anim.animate {
-  animation: insertCartridgeSmooth 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation: insertCartridgeFromRight 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-@keyframes insertCartridgeSmooth {
-  0% { top: -180px; opacity: 0; transform: translateX(-50%) scale(1.1); }
+@keyframes insertCartridgeFromRight {
+  0% { right: -200px; opacity: 0; transform: translateY(-50%) rotate(4deg) scale(1.1); }
   25% { opacity: 1; }
-  65% { top: 22%; transform: translateX(-50%) scale(1); }
-  80% { top: 25%; transform: translateX(-50%) scale(0.98); } /* Tactile Click */
-  100% { top: 24%; opacity: 0; transform: translateX(-50%) scale(0.95); }
+  65% { right: calc(50% - 70px); transform: translateY(-50%) rotate(0deg) scale(1); }
+  80% { right: calc(50% - 78px); transform: translateY(-50%) rotate(0deg) scale(0.98); } /* Tactile Click */
+  100% { right: calc(50% - 70px); opacity: 0; transform: translateY(-50%) scale(0.94); }
 }
 
 /* --------------------------------------------------------------------------
