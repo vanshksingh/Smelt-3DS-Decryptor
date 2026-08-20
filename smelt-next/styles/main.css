@@ -1,63 +1,37 @@
 /* ==========================================================================
-   Smelt Next — Retro 3DS Pastel Design System
+   Smelt Next — Frutiger Aero 3DS Skeuomorphic Design System
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Share+Tech+Mono&display=swap');
 
 :root {
-  /* Default: Retro Pastel (Light) */
-  --bg-desktop: #e0f2f1;
-  --bg-chassis: #f5f6f8;
-  --bg-screen: #ffffff;
-  --bg-screen-inset: #e8eaed;
+  /* Skeuomorphic Console Colors */
+  --bg-matte-plastic: #2a2a2d;
+  --bg-hinge: #1c1c1e;
   
-  --border-chassis: #d0d4dc;
-  --border-screen: #b0b5c0;
+  --bezel-top: #000000;
+  --bezel-bottom: #e0e2e5;
   
-  --accent-primary: #ff9eb5; /* Pastel Pink */
-  --accent-secondary: #a8e6cf; /* Pastel Mint */
-  --accent-tertiary: #dcedc1; /* Pastel Lime */
-  --accent-blue: #a3daff; /* Pastel Blue */
+  /* Frutiger Aero Accents */
+  --btn-gradient-top: #f8fcfd;
+  --btn-gradient-bottom: #dbeaf1;
+  --btn-primary-top: #85d8ce;
+  --btn-primary-bottom: #47b8a7;
+  --btn-border: #9fbac7;
   
-  --text-main: #4a4e69;
-  --text-muted: #9ca3af;
+  /* Screens */
+  --screen-bg: #f9f9f9;
+  --screen-glow: inset 0 0 20px rgba(0,0,0,0.1);
+  --screen-dark: #121212;
+  --console-bg: #1a1a24;
+  --console-text: #66ff99;
   
-  --console-bg: #1e1e24;
-  --console-text: #a8e6cf;
+  --text-dark: #222;
+  --text-light: #e0e0e0;
+  --text-muted: #666;
   
-  --font-main: 'Varela Round', -apple-system, sans-serif;
+  --font-main: 'Ubuntu', -apple-system, sans-serif;
   --font-mono: 'Share Tech Mono', monospace;
-  
-  --shadow-chassis: 0 10px 30px rgba(0,0,0,0.1);
-  --shadow-inset: inset 0 2px 8px rgba(0,0,0,0.05);
-  
-  --radius-chassis: 24px;
-  --radius-screen: 12px;
-}
-
-:root[data-theme="dark"] {
-  /* Dark Mode: Stealth Console Vibe */
-  --bg-desktop: #1a1a24;
-  --bg-chassis: #2a2a35;
-  --bg-screen: #1e1e26;
-  --bg-screen-inset: #15151c;
-  
-  --border-chassis: #3f3f50;
-  --border-screen: #2d2d3a;
-  
-  --accent-primary: #ff7597;
-  --accent-secondary: #00e676;
-  --accent-tertiary: #cbaacb;
-  --accent-blue: #00d2ff;
-  
-  --text-main: #e2e8f0;
-  --text-muted: #718096;
-  
-  --console-bg: #0a0a0f;
-  --console-text: #00e676;
-  
-  --shadow-chassis: 0 15px 40px rgba(0,0,0,0.5);
-  --shadow-inset: inset 0 3px 10px rgba(0,0,0,0.4);
 }
 
 * {
@@ -67,356 +41,394 @@
 }
 
 body {
-  background-color: var(--bg-desktop);
-  background-image: radial-gradient(var(--border-chassis) 1px, transparent 1px);
-  background-size: 20px 20px;
-  color: var(--text-main);
+  /* Matte Plastic Background Texture */
+  background-color: var(--bg-matte-plastic);
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.05"/></svg>');
+  color: var(--text-dark);
   font-family: var(--font-main);
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  transition: all 0.3s ease;
-}
-
-/* Scanlines overlay for screen effect */
-.scanlines {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02));
-  background-size: 100% 4px;
-  pointer-events: none;
-  z-index: 9999;
-}
-:root[data-theme="dark"] .scanlines {
-  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-  background-size: 100% 4px;
+  user-select: none;
 }
 
 .mono { font-family: var(--font-mono); }
 .hidden { display: none !important; }
 
 /* ==========================================================================
-   Chassis (The "Console" Shell)
+   DS Chassis Container
    ========================================================================== */
-.chassis-wrapper {
-  background: var(--bg-chassis);
-  border: 2px solid var(--border-chassis);
-  border-radius: var(--radius-chassis);
-  box-shadow: var(--shadow-chassis), inset 0 2px 4px rgba(255,255,255,0.2);
-  width: 100%;
-  max-width: 900px;
+.ds-chassis {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 960px;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
 }
 
-/* Hinge between dual screens */
+/* ==========================================================================
+   Top Screen (Display Only, 16:9, Black Bezel)
+   ========================================================================== */
+.top-screen-bezel {
+  background: var(--bezel-top);
+  width: 100%;
+  padding: 15px 40px 30px 40px;
+  border-radius: 30px 30px 10px 10px;
+  box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), inset 0 -2px 10px rgba(0,0,0,0.8);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hardware Details: Status Bar */
+.status-bar-left, .status-bar-right {
+  position: absolute;
+  top: 15px;
+  color: #fff;
+  font-size: 0.8rem;
+  display: flex;
+  gap: 15px;
+  opacity: 0.8;
+}
+.status-bar-left { left: 50px; }
+.status-bar-right { right: 50px; }
+
+/* 3D Slider on Right Bezel */
+.slider-3d-container {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.slider-label { color: #fff; font-size: 0.6rem; font-weight: bold; opacity: 0.6; }
+.slider-track {
+  width: 4px;
+  height: 80px;
+  background: #333;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+  position: relative;
+}
+.slider-thumb {
+  width: 12px;
+  height: 20px;
+  background: linear-gradient(to bottom, #999, #555);
+  border: 1px solid #222;
+  border-radius: 2px;
+  position: absolute;
+  left: -4px;
+  top: 10px; /* Adjust for 3D effect in JS if wanted */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+/* The Screen Itself */
+.top-screen {
+  background: var(--screen-dark);
+  width: 800px;
+  height: 450px; /* 16:9 Aspect Ratio */
+  border-radius: 6px;
+  border: 2px solid #111;
+  box-shadow: 0 0 15px rgba(255,255,255,0.05), inset 0 0 30px rgba(0,0,0,0.8);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-screen-content {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1c2b36, #0f161c);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  z-index: 2;
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.25) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.banner-container { text-align: center; }
+.hero-title { font-size: 2.5rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.brand-tag { background: #00d2ff; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 0.9rem; vertical-align: super; }
+.hero-subtitle { color: #8ba4b5; font-size: 1.1rem; }
+
+.global-stats-hud {
+  display: flex;
+  gap: 3rem;
+  background: rgba(0,0,0,0.4);
+  padding: 10px 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.hud-item { display: flex; flex-direction: column; align-items: center; }
+.hud-label { font-size: 0.75rem; text-transform: uppercase; color: #8ba4b5; letter-spacing: 1px; }
+.hud-value { font-family: var(--font-mono); font-size: 1.2rem; color: #00e676; text-shadow: 0 0 8px rgba(0,230,118,0.4); }
+
+/* 3D Cartridge Animation */
+.cartridge-animation-container {
+  width: 100px; height: 100px;
+  perspective: 600px;
+}
+.cartridge-cube {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: spin 10s infinite linear;
+}
+.face {
+  position: absolute; width: 100px; height: 100px;
+  background: rgba(200,200,200,0.9); border: 2px solid #555;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.2rem; color: #333;
+}
+.front { transform: translateZ(20px); background: linear-gradient(135deg, #ccc, #eee); }
+.back { transform: rotateY(180deg) translateZ(20px); }
+.right { transform: rotateY(90deg) translateZ(50px); width: 40px; }
+.left { transform: rotateY(-90deg) translateZ(50px); width: 40px; }
+.top { transform: rotateX(90deg) translateZ(50px); height: 40px; }
+.bottom { transform: rotateX(-90deg) translateZ(50px); height: 40px; }
+
+@keyframes spin { from { transform: rotateY(0deg) rotateX(10deg); } to { transform: rotateY(360deg) rotateX(10deg); } }
+
+
+/* ==========================================================================
+   Hinge & Hardware Cameras
+   ========================================================================== */
 .chassis-hinge {
-  height: 30px;
-  background: var(--border-chassis);
+  width: 95%;
+  height: 45px;
+  background: linear-gradient(to bottom, #111, #333, #111);
+  border-left: 3px solid #222;
+  border-right: 3px solid #222;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
+  z-index: 10;
 }
 
 .hinge-light {
-  width: 12px;
-  height: 12px;
+  width: 14px; height: 14px;
   border-radius: 50%;
-  background: #ffaa00;
-  box-shadow: 0 0 8px #ffaa00, inset 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+  background: #222;
 }
-.hinge-light.green {
-  background: #00ffaa;
-  box-shadow: 0 0 8px #00ffaa, inset 0 1px 3px rgba(0,0,0,0.2);
+.hinge-light.orange { background: #ffaa00; box-shadow: 0 0 10px #ffaa00, inset 0 2px 4px rgba(0,0,0,0.2); }
+.hinge-light.green { background: #00ffaa; box-shadow: 0 0 10px #00ffaa, inset 0 2px 4px rgba(0,0,0,0.2); }
+
+.camera-cutouts {
+  display: flex; gap: 40px;
+}
+.camera-lens {
+  width: 12px; height: 12px;
+  background: radial-gradient(circle at 30% 30%, #555, #000 60%);
+  border-radius: 50%;
+  border: 1px solid #111;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1);
 }
 
-.screen {
-  padding: 1.5rem;
-  background: var(--bg-screen);
-  margin: 1.5rem;
-  border-radius: var(--radius-screen);
-  border: 4px solid var(--bg-screen-inset);
-  box-shadow: var(--shadow-inset);
+/* ==========================================================================
+   Bottom Screen (Interactive, 4:3, Light Bezel)
+   ========================================================================== */
+.bottom-screen-bezel {
+  background: var(--bezel-bottom);
+  width: 90%;
+  padding: 25px 30px;
+  border-radius: 5px 5px 30px 30px;
+  box-shadow: inset 0 -3px 8px rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottom-screen {
+  background: var(--screen-bg);
+  width: 600px;
+  height: 450px; /* 4:3 Aspect Ratio */
+  border-radius: 4px;
+  border: 2px solid #a0a5b0;
+  box-shadow: 0 0 0 1px #fff, var(--screen-glow);
   position: relative;
   overflow: hidden;
 }
 
+.bottom-screen-content {
+  width: 100%; height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  z-index: 2;
+  position: relative;
+}
+
+.scanlines-light {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.03) 50%);
+  background-size: 100% 4px;
+  pointer-events: none; z-index: 10;
+}
+
 /* ==========================================================================
-   Top Screen Content
+   Frutiger Aero Buttons & Controls
    ========================================================================== */
-.app-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.brand-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-logo {
-  font-size: 1.5rem;
-  background: var(--accent-primary);
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-}
-
-.brand-name {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: var(--text-main);
-}
-
-.brand-tag {
-  background: var(--accent-blue);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  vertical-align: super;
-}
-
-.nav-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.hardware-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg-screen-inset);
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  border: 1px solid var(--border-screen);
-}
-
-.hw-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
-.hw-indicator.active { background: var(--accent-secondary); box-shadow: 0 0 6px var(--accent-secondary); }
-.hw-indicator.warn { background: #ffaa00; }
-
-.hero-banner {
-  text-align: center;
-  padding: 1rem 0 2rem;
-}
-
-.hero-title {
-  font-size: 2.2rem;
-  color: var(--text-main);
-  margin-bottom: 0.5rem;
-}
-.hero-title span { color: var(--accent-primary); }
-
-.hero-subtitle { color: var(--text-muted); }
-
-.privacy-badge {
-  display: inline-block;
-  margin-top: 1rem;
-  background: var(--bg-screen-inset);
-  padding: 4px 12px;
+.btn-frutiger {
+  background: linear-gradient(to bottom, var(--btn-gradient-top), var(--btn-gradient-bottom));
+  border: 1px solid var(--btn-border);
   border-radius: 20px;
-  font-size: 0.85rem;
-  border: 1px dashed var(--accent-secondary);
-}
-
-/* ==========================================================================
-   Buttons (Retro Styling)
-   ========================================================================== */
-.btn-retro {
-  background: var(--bg-chassis);
-  border: 2px solid var(--border-chassis);
-  color: var(--text-main);
+  color: var(--text-dark);
   font-family: var(--font-main);
-  font-weight: bold;
-  padding: 8px 16px;
-  border-radius: 12px;
+  font-weight: 500;
+  padding: 6px 16px;
   cursor: pointer;
-  box-shadow: 0 4px 0 var(--border-chassis);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
   transition: all 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-frutiger:active:not(:disabled) {
+  background: linear-gradient(to bottom, var(--btn-gradient-bottom), var(--btn-gradient-top));
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+.btn-frutiger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-frutiger.primary {
+  background: linear-gradient(to bottom, var(--btn-primary-top), var(--btn-primary-bottom));
+  border-color: #3aa897;
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 5px rgba(71,184,167,0.4);
+}
+.btn-frutiger.primary:active:not(:disabled) {
+  background: linear-gradient(to bottom, var(--btn-primary-bottom), var(--btn-primary-top));
 }
 
-.btn-retro:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 0 0 var(--border-chassis);
-}
+.btn-frutiger.small { padding: 4px 12px; font-size: 0.85rem; }
+.icon-btn { padding: 4px 8px; font-size: 1rem; border-radius: 50%; width: 32px; height: 32px; }
 
-.btn-retro:hover:not(:disabled) { filter: brightness(1.05); }
-
-.btn-retro:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow: 0 2px 0 var(--border-chassis);
-  transform: translateY(2px);
-}
-
-.btn-primary {
-  background: var(--accent-primary);
-  border-color: #ff7597;
-  color: white;
-  box-shadow: 0 4px 0 #ff7597;
-}
-
-.btn-small { padding: 4px 12px; font-size: 0.8rem; }
-.icon-btn { padding: 4px 8px; font-size: 1rem; }
-
-/* ==========================================================================
-   Dropzone (Cartridge Slot)
-   ========================================================================== */
-.dropzone-card {
-  background: var(--bg-screen-inset);
-  border: 3px dashed var(--border-screen);
-  border-radius: 16px;
-  padding: 3rem 2rem;
+/* Interactive Workspace Elements */
+.dropzone-area {
+  background: rgba(255,255,255,0.6);
+  border: 2px dashed #b0c4de;
+  border-radius: 12px;
+  padding: 1.5rem;
   text-align: center;
-  transition: all 0.2s;
   cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
 }
-.dropzone-card:hover { border-color: var(--accent-primary); background: rgba(255,158,181,0.1); }
-.dropzone-card.drag-active { border-color: var(--accent-secondary); background: rgba(168,230,207,0.2); transform: scale(1.02); }
+.dropzone-area:hover { background: rgba(255,255,255,0.9); }
+.forge-anvil-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+.dropzone-headline { font-size: 1.1rem; margin-bottom: 0.2rem; color: #334; }
+.dropzone-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
 
-.forge-anvil-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
-.dropzone-headline { font-size: 1.3rem; margin-bottom: 0.5rem; }
-.dropzone-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
-
-/* ==========================================================================
-   Bottom Screen: Workspace Grid
-   ========================================================================== */
 .forge-workspace {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex: 1;
 }
-@media (max-width: 768px) { .forge-workspace { grid-template-columns: 1fr; } }
 
 .panel-card {
-  background: var(--bg-chassis);
-  border: 2px solid var(--border-chassis);
-  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #d0d7e0;
+  border-radius: 10px;
   display: flex; flex-direction: column;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
-
 .panel-header {
-  padding: 10px 15px;
-  border-bottom: 2px solid var(--border-chassis);
+  background: linear-gradient(to bottom, #f0f4f8, #e1e7ed);
+  padding: 8px 12px;
+  border-bottom: 1px solid #d0d7e0;
   display: flex; justify-content: space-between; align-items: center;
 }
-.panel-title { font-size: 1.1rem; }
+.panel-title { font-size: 0.95rem; color: #445; font-weight: 500; }
 
-.select-retro {
-  background: var(--bg-screen);
-  border: 2px solid var(--border-chassis);
-  color: var(--text-main);
-  border-radius: 8px;
-  padding: 4px;
+.select-glossy {
+  background: linear-gradient(to bottom, #fff, #eee);
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 2px 6px;
   font-family: var(--font-main);
+  font-size: 0.8rem;
   outline: none;
 }
 
-/* Queue List */
-.queue-container {
-  padding: 10px;
-  min-height: 200px;
-  max-height: 250px;
-  overflow-y: auto;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.queue-empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
-.empty-icon { font-size: 2rem; }
-
+.queue-container { padding: 8px; flex: 1; overflow-y: auto; max-height: 160px; }
+.queue-empty-state { text-align: center; color: #99a; font-size: 0.85rem; padding-top: 2rem; }
 .queue-card {
-  background: var(--bg-screen);
-  border: 2px solid var(--border-screen);
-  border-radius: 12px;
-  padding: 10px;
+  background: #fdfdfd; border: 1px solid #e0e4e8; border-radius: 8px; padding: 8px; margin-bottom: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
-.card-left { display: flex; align-items: center; gap: 10px; }
-.rom-info { overflow: hidden; flex: 1; }
-.rom-title-row { display: flex; align-items: center; gap: 8px; justify-content: space-between;}
-.rom-filename { font-weight: bold; font-size: 0.9rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px; }
-.rom-sub-row { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
-
-.badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 8px; font-weight: bold; text-transform: uppercase; }
-.badge-analyzing { background: var(--accent-blue); color: #000; }
-.badge-clean { background: var(--accent-secondary); color: #000; }
-.badge-forging { background: var(--accent-primary); color: #fff; }
-.badge-done { background: var(--accent-tertiary); color: #000; }
-.badge-error { background: #ff4d4d; color: #fff; }
-
-.card-actions { display: flex; gap: 4px; justify-content: flex-end; margin-top: 8px; }
-.btn-action { background: var(--bg-chassis); border: 2px solid var(--border-screen); border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; color: var(--text-main); font-family: var(--font-main); font-weight: bold;}
-.btn-action:hover { background: var(--bg-screen-inset); }
-.btn-download { background: var(--accent-secondary); border-color: #79c5a7; color: #000; }
-
-.mini-progress-bar { height: 6px; background: var(--bg-screen-inset); border-radius: 4px; margin-top: 8px; overflow: hidden; }
-.mini-progress-fill { height: 100%; background: var(--accent-primary); width: 0%; transition: width 0.2s; }
+.card-left { display: flex; align-items: center; gap: 8px; }
+.rom-icon { font-size: 1.2rem; }
+.rom-info { overflow: hidden; }
+.rom-title-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+.rom-filename { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
+.rom-sub-row { font-size: 0.7rem; color: #889; }
+.badge { font-size: 0.65rem; padding: 2px 4px; border-radius: 6px; background: #eef; color: #558; font-weight: bold; }
+.card-actions { display: flex; gap: 4px; justify-content: flex-end; margin-top: 6px; }
 
 .panel-footer {
-  padding: 10px 15px;
-  border-top: 2px solid var(--border-chassis);
+  background: #f8fafc; padding: 8px 12px; border-top: 1px solid #d0d7e0;
   display: flex; justify-content: space-between; align-items: center;
 }
-.checkbox-retro { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; }
-.footer-actions { display: flex; gap: 8px; }
+.checkbox-frutiger { font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
 
 /* Console Panel */
-.hud-panel {
-  display: flex; justify-content: space-around;
-  padding: 10px; background: var(--bg-screen-inset);
-  border-bottom: 2px solid var(--border-chassis);
-}
-.hud-item { display: flex; flex-direction: column; align-items: center; }
-.hud-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
-.hud-value { font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-main); }
-
+.console-panel { flex: 1; }
 .console-terminal {
   background: var(--console-bg);
   color: var(--console-text);
   font-family: var(--font-mono);
-  padding: 10px;
-  height: 200px;
+  padding: 8px;
+  flex: 1;
   overflow-y: auto;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   display: flex; flex-direction: column; gap: 4px;
+  max-height: 160px;
 }
-.console-line { display: flex; gap: 8px; }
-.log-time { opacity: 0.5; }
-.log-badge { padding: 1px 4px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
-.badge-info { background: #3b82f6; color: white; }
-.badge-success { background: #10b981; color: white; }
-.badge-warn { background: #f59e0b; color: white; }
-.badge-error { background: #ef4444; color: white; }
+.log-time { color: #555; }
+.log-msg { word-break: break-all; }
 
-/* ==========================================================================
-   Inspector Modal
-   ========================================================================== */
+/* Modal */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-  display: flex; align-items: center; justify-content: center; z-index: 1000;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100;
+  display: flex; align-items: center; justify-content: center;
 }
-.modal-dialog {
-  background: var(--bg-chassis); border: 4px solid var(--border-chassis);
-  border-radius: 16px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
-  padding: 2rem; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+.frutiger-modal {
+  background: linear-gradient(to bottom, #fff, #f0f4f8);
+  border: 1px solid #b0c4de;
+  border-radius: 12px;
+  padding: 20px;
+  width: 90%; max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,1);
+  position: relative;
 }
-.modal-close { position: absolute; top: 1rem; right: 1rem; }
-.inspector-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
-.inspector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.inspector-card { background: var(--bg-screen); border: 2px solid var(--border-screen); border-radius: 12px; padding: 1rem; }
-.inspector-card h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-.prop-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
-.prop-label { color: var(--text-muted); }
-.prop-value { font-weight: bold; font-family: var(--font-mono); }
+.modal-close { position: absolute; top: -10px; right: -10px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }

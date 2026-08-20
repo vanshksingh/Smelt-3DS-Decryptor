@@ -61,6 +61,14 @@ export class ForgeService {
           speedMBs,
           etaSeconds
         });
+        
+        // Pedometer hook
+        const stepsEl = document.getElementById('hud-steps');
+        if (stepsEl && percent % 5 === 0) { // update periodically
+            const mb = data.processedBytes ? Math.floor(data.processedBytes / (1024 * 1024)) : 0;
+            stepsEl.textContent = mb;
+        }
+        
         break;
 
       case 'PROCESS_COMPLETE':

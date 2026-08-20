@@ -138,7 +138,21 @@ async function handleRomProcessing({ fileId, file, options }) {
   if (analysis.analysisState === 'patch') {
     log('Detected decrypted partitions missing NoCrypto flag (0x18F). Applying instant header patch...');
     const patchedHeader = new Uint8Array(headerData);
-    const patched = NCCHReader.patchNoCryptoFlag(patchedHeader);
+    let patched = false;
+
+    if (analysis.isCIA && analysis.layout) {
+      log('Applying internal NCCH NoCrypto patch within CIA container...');
+      const ncchOffset = analysis.layout.contentOffset;
+      if (patchedHeader.length >= ncchOffset + 0x190) {
+        const flagPos = ncchOffset + 0x18F;
+        if ((patchedHeader[flagPos] & 0x04) === 0) {
+          patchedHeader[flagPos] |= 0x04;
+          patched = true;
+        }
+      }
+    } else {
+      patched = NCCHReader.patchNoCryptoFlag(patchedHeader);
+    }
 
     if (patched) {
       log('Injecting NoCrypto flag [flags[7] |= 0x04] at 0x18F into primary NCCH header...');
@@ -191,7 +205,19 @@ async function handleRomProcessing({ fileId, file, options }) {
   // Case C: Full Cryptographic Decryption & Partition Extraction (CIA / Encrypted NCCH)
   log('Initializing hardware-accelerated partition stream engine...');
   const patchedHeader = new Uint8Array(headerData);
-  NCCHReader.patchNoCryptoFlag(patchedHeader);
+  
+  if (analysis.isCIA && analysis.layout) {
+    log('Applying internal NCCH NoCrypto patch within CIA container...');
+    const ncchOffset = analysis.layout.contentOffset;
+    if (patchedHeader.length >= ncchOffset + 0x190) {
+      const flagPos = ncchOffset + 0x18F;
+      if ((patchedHeader[flagPos] & 0x04) === 0) {
+        patchedHeader[flagPos] |= 0x04;
+      }
+    }
+  } else {
+    NCCHReader.patchNoCryptoFlag(patchedHeader);
+  }
 
   const outputBlobs = [];
   outputBlobs.push(new Blob([patchedHeader.slice(0, headerSliceSize)]));
