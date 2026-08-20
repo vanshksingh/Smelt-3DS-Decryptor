@@ -25,13 +25,6 @@ class SmeltNextApplication {
   }
 
   initViews() {
-    // Theme Manager
-    this.themeManager = new ThemeManager(
-      this.bus,
-      document.getElementById('btn-theme-toggle'),
-      document.getElementById('theme-status-text')
-    );
-
     // Dropzone View
     this.dropzoneView = new DropzoneView(
       this.bus,
@@ -54,7 +47,7 @@ class SmeltNextApplication {
       container: document.getElementById('console-output'),
       speed: document.getElementById('hud-speed'),
       eta: document.getElementById('hud-eta'),
-      task: document.getElementById('hud-task'),
+      task: null, // Removed from new layout
       clearBtn: document.getElementById('btn-clear-console'),
       exportBtn: document.getElementById('btn-export-console')
     });
@@ -67,25 +60,13 @@ class SmeltNextApplication {
   }
 
   initHardwareHUD() {
-    const hwBadge = document.getElementById('hardware-badge');
     const hasCrypto = typeof window !== 'undefined' && window.crypto && window.crypto.subtle;
     const threads = navigator.hardwareConcurrency || 4;
-
-    if (hasCrypto && hwBadge) {
-      hwBadge.innerHTML = `
-        <span class="hw-indicator active"></span>
-        <span class="hw-text">Hardware AES Acceleration: <b>Active</b> (${threads} Threads)</span>
-      `;
-      this.bus.emit('log', {
-        level: LOG_LEVEL.SUCCESS,
-        text: `Hardware Crypto Acceleration initialized via Web Crypto API (${threads} Logical Cores).`
-      });
-    } else if (hwBadge) {
-      hwBadge.innerHTML = `
-        <span class="hw-indicator warn"></span>
-        <span class="hw-text">Software Emulation Mode</span>
-      `;
-    }
+    const level = hasCrypto ? LOG_LEVEL.SUCCESS : LOG_LEVEL.WARN;
+    const msg = hasCrypto
+      ? `Hardware AES Acceleration: Active (${threads} Logical Cores) via Web Crypto API.`
+      : `Software emulation mode — Web Crypto API not available.`;
+    this.bus.emit('log', { level, text: msg });
   }
 
   wireEvents() {
@@ -97,16 +78,20 @@ class SmeltNextApplication {
       const viewQueue = document.getElementById('view-queue');
       
       if (anim && viewDropzone && viewQueue && files.length > 0) {
-        // Start animation
+        // Reset any lingering animation, then start fresh
+        anim.classList.remove('animate');
+        void anim.offsetWidth; // Force reflow to restart animation
         anim.classList.add('animate');
         
-        // After "click" (1.5s), swap views
+        // At ~70% of animation (1.75s) — cartridge approaches slot — swap views
         setTimeout(() => {
           viewDropzone.classList.remove('active');
           viewQueue.classList.add('active');
+        }, 1750);
+        
+        // After animation fully completes (2.7s), remove class and process files
+        setTimeout(() => {
           anim.classList.remove('animate');
-          
-          // Process files after animation finishes
           for (const file of files) {
             if (file.name.toLowerCase().includes('seeddb')) {
               file.arrayBuffer().then((buf) => {
@@ -117,7 +102,7 @@ class SmeltNextApplication {
               this.forgeService.analyzeROM(item);
             }
           }
-        }, 1500);
+        }, 2700);
       }
     });
 

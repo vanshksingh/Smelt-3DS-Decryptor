@@ -1,5 +1,8 @@
-// Smelt Next - Dev / Network First Service Worker
-self.addEventListener('install', () => self.skipWaiting());
+// Smelt Next — Cache Busting Service Worker v20260821_02
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
@@ -8,6 +11,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Always fetch latest from network
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  // Always fetch directly from network without caching in dev/local
+  event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request)));
 });

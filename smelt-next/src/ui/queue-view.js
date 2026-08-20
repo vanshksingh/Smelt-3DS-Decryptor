@@ -86,7 +86,7 @@ export class QueueView {
     } else if (item.status === ROM_STATUS.FORGING) {
       stateBadge = `<span class="badge badge-forging">Forging ${item.progress}%</span>`;
     } else if (item.status === ROM_STATUS.COMPLETED) {
-      stateBadge = '<span class="badge badge-done">✨ Ready</span>';
+      stateBadge = '<span class="badge badge-done">Ready</span>';
     } else if (item.status === ROM_STATUS.ERROR) {
       stateBadge = '<span class="badge badge-error">Failed</span>';
     } else {
@@ -103,7 +103,7 @@ export class QueueView {
 
     el.innerHTML = `
       <div class="card-left">
-        <div class="rom-icon">👾</div>
+        <div class="rom-icon-badge">3DS</div>
         <div class="rom-info">
           <div class="rom-title-row">
             <span class="rom-filename" title="${item.name}">${item.name}</span>
@@ -126,11 +126,11 @@ export class QueueView {
       </div>
 
       <div class="card-actions">
-        <button class="btn-action btn-inspect" title="Inspect ROM details">🔍</button>
+        <button class="btn-action btn-inspect" title="Inspect ROM details">i</button>
         ${item.status === ROM_STATUS.COMPLETED ? `
-          <button class="btn-action btn-download" title="Download">⬇️</button>
+          <button class="btn-action btn-download" title="Download decrypted ROM">DL</button>
         ` : `
-          <button class="btn-action btn-single-forge" title="Forge this ROM">⚡</button>
+          <button class="btn-action btn-single-forge" title="Forge this ROM">RUN</button>
         `}
         <button class="btn-action btn-remove" title="Remove">✕</button>
       </div>

@@ -14,38 +14,61 @@ export class DownloadService {
       return;
     }
 
-    try {
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({ suggestedName: filename });
-          const writable = await handle.createWritable();
+    const ext = filename.split('.').pop().toLowerCase();
+
+    // 1. Modern Chromium File System Access API (Stream directly to disk without memory limits)
+    if (typeof window !== 'undefined' && window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [
+            {
+              description: 'Nintendo 3DS ROM Image',
+              accept: {
+                'application/octet-stream': [`.${ext}`]
+              }
+            }
+          ]
+        });
+
+        const writable = await handle.createWritable();
+        if (blob.stream && writable.write) {
+          await blob.stream().pipeTo(writable);
+        } else {
           await writable.write(blob);
           await writable.close();
-          this.bus.emit('log', { level: LOG_LEVEL.SUCCESS, text: `Successfully saved: "${filename}" to disk.` });
-          return;
-        } catch (err) {
-          if (err.name === 'AbortError') return; // User cancelled
-          console.warn('showSaveFilePicker failed, falling back to anchor download', err);
         }
-      }
 
-      // Fallback for Safari / Firefox
-      // Ensure the Blob has the correct octet-stream type to force download
-      const downloadBlob = new Blob([blob], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(downloadBlob);
+        this.bus.emit('log', { level: LOG_LEVEL.SUCCESS, text: `Successfully saved: "${filename}" to disk.` });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          // User cancelled save dialog
+          return;
+        }
+        console.warn('showSaveFilePicker stream save failed, falling back to anchor download:', err);
+      }
+    }
+
+    // 2. Standard / Safari Anchor Download
+    try {
+      const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.style.display = 'none';
       anchor.href = url;
       anchor.download = filename;
+      anchor.rel = 'noopener';
       document.body.appendChild(anchor);
       anchor.click();
 
       setTimeout(() => {
-        document.body.removeChild(anchor);
+        if (document.body.contains(anchor)) {
+          document.body.removeChild(anchor);
+        }
         URL.revokeObjectURL(url);
-      }, 10000);
+      }, 15000);
 
-      this.bus.emit('log', { level: LOG_LEVEL.SUCCESS, text: `Triggered fallback download: "${filename}"` });
+      this.bus.emit('log', { level: LOG_LEVEL.SUCCESS, text: `Downloading: "${filename}"` });
     } catch (err) {
       this.bus.emit('log', { level: LOG_LEVEL.ERROR, text: `Download failed: ${err.message}` });
     }

@@ -17,7 +17,7 @@ export class ForgeService {
       if (this.worker) {
         this.worker.terminate();
       }
-      this.worker = new Worker(new URL('../workers/decrypt.worker.js', import.meta.url), { type: 'module' });
+      this.worker = new Worker(new URL('../workers/decrypt.worker.js?v=20260821_02', import.meta.url), { type: 'module' });
       this.worker.onmessage = (e) => this.handleWorkerMessage(e.data);
       this.worker.onerror = (err) => {
         this.bus.emit('log', { level: LOG_LEVEL.ERROR, text: `Worker thread error: ${err.message}` });
