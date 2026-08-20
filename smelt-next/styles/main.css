@@ -1,0 +1,422 @@
+/* ==========================================================================
+   Smelt Next — Retro 3DS Pastel Design System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&family=Share+Tech+Mono&display=swap');
+
+:root {
+  /* Default: Retro Pastel (Light) */
+  --bg-desktop: #e0f2f1;
+  --bg-chassis: #f5f6f8;
+  --bg-screen: #ffffff;
+  --bg-screen-inset: #e8eaed;
+  
+  --border-chassis: #d0d4dc;
+  --border-screen: #b0b5c0;
+  
+  --accent-primary: #ff9eb5; /* Pastel Pink */
+  --accent-secondary: #a8e6cf; /* Pastel Mint */
+  --accent-tertiary: #dcedc1; /* Pastel Lime */
+  --accent-blue: #a3daff; /* Pastel Blue */
+  
+  --text-main: #4a4e69;
+  --text-muted: #9ca3af;
+  
+  --console-bg: #1e1e24;
+  --console-text: #a8e6cf;
+  
+  --font-main: 'Varela Round', -apple-system, sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  
+  --shadow-chassis: 0 10px 30px rgba(0,0,0,0.1);
+  --shadow-inset: inset 0 2px 8px rgba(0,0,0,0.05);
+  
+  --radius-chassis: 24px;
+  --radius-screen: 12px;
+}
+
+:root[data-theme="dark"] {
+  /* Dark Mode: Stealth Console Vibe */
+  --bg-desktop: #1a1a24;
+  --bg-chassis: #2a2a35;
+  --bg-screen: #1e1e26;
+  --bg-screen-inset: #15151c;
+  
+  --border-chassis: #3f3f50;
+  --border-screen: #2d2d3a;
+  
+  --accent-primary: #ff7597;
+  --accent-secondary: #00e676;
+  --accent-tertiary: #cbaacb;
+  --accent-blue: #00d2ff;
+  
+  --text-main: #e2e8f0;
+  --text-muted: #718096;
+  
+  --console-bg: #0a0a0f;
+  --console-text: #00e676;
+  
+  --shadow-chassis: 0 15px 40px rgba(0,0,0,0.5);
+  --shadow-inset: inset 0 3px 10px rgba(0,0,0,0.4);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-desktop);
+  background-image: radial-gradient(var(--border-chassis) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: var(--text-main);
+  font-family: var(--font-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+/* Scanlines overlay for screen effect */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02));
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9999;
+}
+:root[data-theme="dark"] .scanlines {
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+  background-size: 100% 4px;
+}
+
+.mono { font-family: var(--font-mono); }
+.hidden { display: none !important; }
+
+/* ==========================================================================
+   Chassis (The "Console" Shell)
+   ========================================================================== */
+.chassis-wrapper {
+  background: var(--bg-chassis);
+  border: 2px solid var(--border-chassis);
+  border-radius: var(--radius-chassis);
+  box-shadow: var(--shadow-chassis), inset 0 2px 4px rgba(255,255,255,0.2);
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Hinge between dual screens */
+.chassis-hinge {
+  height: 30px;
+  background: var(--border-chassis);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.hinge-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffaa00;
+  box-shadow: 0 0 8px #ffaa00, inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.hinge-light.green {
+  background: #00ffaa;
+  box-shadow: 0 0 8px #00ffaa, inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.screen {
+  padding: 1.5rem;
+  background: var(--bg-screen);
+  margin: 1.5rem;
+  border-radius: var(--radius-screen);
+  border: 4px solid var(--bg-screen-inset);
+  box-shadow: var(--shadow-inset);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Top Screen Content
+   ========================================================================== */
+.app-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  font-size: 1.5rem;
+  background: var(--accent-primary);
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+}
+
+.brand-name {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.brand-tag {
+  background: var(--accent-blue);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  vertical-align: super;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.hardware-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-screen-inset);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-screen);
+}
+
+.hw-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+.hw-indicator.active { background: var(--accent-secondary); box-shadow: 0 0 6px var(--accent-secondary); }
+.hw-indicator.warn { background: #ffaa00; }
+
+.hero-banner {
+  text-align: center;
+  padding: 1rem 0 2rem;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+.hero-title span { color: var(--accent-primary); }
+
+.hero-subtitle { color: var(--text-muted); }
+
+.privacy-badge {
+  display: inline-block;
+  margin-top: 1rem;
+  background: var(--bg-screen-inset);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  border: 1px dashed var(--accent-secondary);
+}
+
+/* ==========================================================================
+   Buttons (Retro Styling)
+   ========================================================================== */
+.btn-retro {
+  background: var(--bg-chassis);
+  border: 2px solid var(--border-chassis);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--border-chassis);
+  transition: all 0.1s;
+}
+
+.btn-retro:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--border-chassis);
+}
+
+.btn-retro:hover:not(:disabled) { filter: brightness(1.05); }
+
+.btn-retro:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: 0 2px 0 var(--border-chassis);
+  transform: translateY(2px);
+}
+
+.btn-primary {
+  background: var(--accent-primary);
+  border-color: #ff7597;
+  color: white;
+  box-shadow: 0 4px 0 #ff7597;
+}
+
+.btn-small { padding: 4px 12px; font-size: 0.8rem; }
+.icon-btn { padding: 4px 8px; font-size: 1rem; }
+
+/* ==========================================================================
+   Dropzone (Cartridge Slot)
+   ========================================================================== */
+.dropzone-card {
+  background: var(--bg-screen-inset);
+  border: 3px dashed var(--border-screen);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.dropzone-card:hover { border-color: var(--accent-primary); background: rgba(255,158,181,0.1); }
+.dropzone-card.drag-active { border-color: var(--accent-secondary); background: rgba(168,230,207,0.2); transform: scale(1.02); }
+
+.forge-anvil-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+.dropzone-headline { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.dropzone-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+/* ==========================================================================
+   Bottom Screen: Workspace Grid
+   ========================================================================== */
+.forge-workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 768px) { .forge-workspace { grid-template-columns: 1fr; } }
+
+.panel-card {
+  background: var(--bg-chassis);
+  border: 2px solid var(--border-chassis);
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+}
+
+.panel-header {
+  padding: 10px 15px;
+  border-bottom: 2px solid var(--border-chassis);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.panel-title { font-size: 1.1rem; }
+
+.select-retro {
+  background: var(--bg-screen);
+  border: 2px solid var(--border-chassis);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 4px;
+  font-family: var(--font-main);
+  outline: none;
+}
+
+/* Queue List */
+.queue-container {
+  padding: 10px;
+  min-height: 200px;
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.queue-empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
+.empty-icon { font-size: 2rem; }
+
+.queue-card {
+  background: var(--bg-screen);
+  border: 2px solid var(--border-screen);
+  border-radius: 12px;
+  padding: 10px;
+}
+.card-left { display: flex; align-items: center; gap: 10px; }
+.rom-info { overflow: hidden; flex: 1; }
+.rom-title-row { display: flex; align-items: center; gap: 8px; justify-content: space-between;}
+.rom-filename { font-weight: bold; font-size: 0.9rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px; }
+.rom-sub-row { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+.badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 8px; font-weight: bold; text-transform: uppercase; }
+.badge-analyzing { background: var(--accent-blue); color: #000; }
+.badge-clean { background: var(--accent-secondary); color: #000; }
+.badge-forging { background: var(--accent-primary); color: #fff; }
+.badge-done { background: var(--accent-tertiary); color: #000; }
+.badge-error { background: #ff4d4d; color: #fff; }
+
+.card-actions { display: flex; gap: 4px; justify-content: flex-end; margin-top: 8px; }
+.btn-action { background: var(--bg-chassis); border: 2px solid var(--border-screen); border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; color: var(--text-main); font-family: var(--font-main); font-weight: bold;}
+.btn-action:hover { background: var(--bg-screen-inset); }
+.btn-download { background: var(--accent-secondary); border-color: #79c5a7; color: #000; }
+
+.mini-progress-bar { height: 6px; background: var(--bg-screen-inset); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.mini-progress-fill { height: 100%; background: var(--accent-primary); width: 0%; transition: width 0.2s; }
+
+.panel-footer {
+  padding: 10px 15px;
+  border-top: 2px solid var(--border-chassis);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.checkbox-retro { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; }
+.footer-actions { display: flex; gap: 8px; }
+
+/* Console Panel */
+.hud-panel {
+  display: flex; justify-content: space-around;
+  padding: 10px; background: var(--bg-screen-inset);
+  border-bottom: 2px solid var(--border-chassis);
+}
+.hud-item { display: flex; flex-direction: column; align-items: center; }
+.hud-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+.hud-value { font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-main); }
+
+.console-terminal {
+  background: var(--console-bg);
+  color: var(--console-text);
+  font-family: var(--font-mono);
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.console-line { display: flex; gap: 8px; }
+.log-time { opacity: 0.5; }
+.log-badge { padding: 1px 4px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
+.badge-info { background: #3b82f6; color: white; }
+.badge-success { background: #10b981; color: white; }
+.badge-warn { background: #f59e0b; color: white; }
+.badge-error { background: #ef4444; color: white; }
+
+/* ==========================================================================
+   Inspector Modal
+   ========================================================================== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-dialog {
+  background: var(--bg-chassis); border: 4px solid var(--border-chassis);
+  border-radius: 16px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
+  padding: 2rem; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-close { position: absolute; top: 1rem; right: 1rem; }
+.inspector-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+.inspector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.inspector-card { background: var(--bg-screen); border: 2px solid var(--border-screen); border-radius: 12px; padding: 1rem; }
+.inspector-card h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.prop-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+.prop-label { color: var(--text-muted); }
+.prop-value { font-weight: bold; font-family: var(--font-mono); }

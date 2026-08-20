@@ -1,0 +1,10 @@
+{
+  "name": "Smelt Next — In-Browser 3DS ROM Forge",
+  "short_name": "Smelt Next",
+  "description": "High-performance, zero-upload 3DS ROM decryptor and patcher powered by local hardware acceleration.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0e15",
+  "theme_color": "#ff5500",
+  "icons": []
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smelt Next — In-Browser 3DS ROM Forge</title>
+  <meta name="description" content="Client-side Nintendo 3DS ROM decryptor. 100% private, zero uploads.">
+  <meta name="theme-color" content="#ff9eb5">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles/main.css?v=7">
+</head>
+<body>
+  <div class="scanlines"></div>
+
+  <!-- App Wrapper (3DS Chassis Vibe) -->
+  <div class="chassis-wrapper">
+    <!-- Top Screen -->
+    <div class="screen top-screen">
+      <nav class="app-navbar">
+        <div class="brand-container">
+          <div class="brand-logo">✨</div>
+          <div class="brand-name">Smelt <span class="brand-tag">NEXT</span></div>
+        </div>
+        <div class="nav-controls">
+          <button id="btn-theme-toggle" class="btn-retro btn-small">
+            <span class="icon">🌓</span> <span id="theme-status-text">Auto</span>
+          </button>
+          <div id="hardware-badge" class="hardware-pill">
+            <span class="hw-indicator"></span>
+            <span class="hw-text">Checking CPU...</span>
+          </div>
+        </div>
+      </nav>
+
+      <header class="hero-banner">
+        <h1 class="hero-title">Forge 3DS ROMs <span>In-Browser</span></h1>
+        <p class="hero-subtitle">High-speed local decryption & patching using hardware crypto. Zero server uploads.</p>
+        <div class="privacy-badge">
+          🛡️ 100% Private Client-Side Engine
+        </div>
+      </header>
+
+      <!-- Dropzone Area -->
+      <section id="dropzone" class="dropzone-card">
+        <div class="dropzone-icon-wrapper">
+          <span class="forge-anvil-icon">💾</span>
+        </div>
+        <h2 class="dropzone-headline">Insert ROM Cartridges Here</h2>
+        <p class="dropzone-desc">Drop <b>.3ds</b>, <b>.cci</b>, <b>.cia</b>, or <b>.cxi</b> files for processing.</p>
+        <div class="dropzone-btn-group">
+          <label for="file-input" class="btn-retro btn-primary">
+            Browse Files
+            <input type="file" id="file-input" multiple hidden>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <!-- Hinge / Separation -->
+    <div class="chassis-hinge">
+      <div class="hinge-light"></div>
+      <div class="hinge-light green"></div>
+    </div>
+
+    <!-- Bottom Screen (Touch Screen style) -->
+    <div class="screen bottom-screen">
+      <section class="forge-workspace">
+        <!-- Left: Batch Queue -->
+        <div class="panel-card queue-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">📦 Queue</h2>
+            <div class="panel-actions">
+              <select id="select-format" class="select-retro">
+                <option value="same" selected>Format: Default</option>
+                <option value="cci">To .CCI</option>
+                <option value="3ds">To .3DS</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="queue-list" class="queue-container">
+            <div id="empty-queue" class="queue-empty-state">
+              <span class="empty-icon">📥</span>
+              <p>No cartridges loaded</p>
+            </div>
+          </div>
+
+          <div class="panel-footer">
+            <label class="checkbox-retro">
+              <input type="checkbox" id="check-auto-download" checked>
+              <span>Auto-download</span>
+            </label>
+            <div class="footer-actions">
+              <button id="btn-clear-all" class="btn-retro btn-small">Clear</button>
+              <button id="btn-forge-all" class="btn-retro btn-primary" disabled>⚡ Forge All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Console -->
+        <div class="panel-card console-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">📟 Terminal</h2>
+            <div class="panel-actions">
+              <button id="btn-clear-console" class="btn-retro icon-btn" title="Clear">🧹</button>
+              <button id="btn-export-console" class="btn-retro icon-btn" title="Save">💾</button>
+            </div>
+          </div>
+
+          <div class="hud-panel">
+            <div class="hud-item">
+              <span class="hud-label">Speed</span>
+              <span id="hud-speed" class="hud-value">0.0 MB/s</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">ETA</span>
+              <span id="hud-eta" class="hud-value">Ready</span>
+            </div>
+          </div>
+
+          <div id="console-output" class="console-terminal"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ROM Inspector Modal -->
+  <div id="inspector-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <button class="modal-close btn-retro icon-btn">✕</button>
+      <div class="inspector-content"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/ui/app.js?v=7"></script>
+</body>
+</html>
