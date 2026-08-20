@@ -59,7 +59,23 @@ rm -f "${WORKSPACE_DIR}/Build/AppIcon.icns"
 
 # 5. Compile Swift app binary
 echo " * Compiling native SwiftUI application..."
-swiftc -sdk $(xcrun --show-sdk-path) -parse-as-library "${WORKSPACE_DIR}/Source/Model.swift" "${WORKSPACE_DIR}/Source/Views.swift" -o "${BUNDLE_DIR}/Contents/MacOS/Smelt"
+SDK_PATH="$(xcrun --show-sdk-path)"
+SWIFT_SOURCES=()
+while IFS= read -r file; do
+    SWIFT_SOURCES+=("$file")
+done < <(find "${WORKSPACE_DIR}/Source" -name "*.swift" -print | sort)
+
+if [ ${#SWIFT_SOURCES[@]} -eq 0 ]; then
+    echo "ERROR: No Swift sources found under Source/"
+    exit 1
+fi
+
+swiftc \
+    -sdk "$SDK_PATH" \
+    -parse-as-library \
+    -target arm64-apple-macos12.0 \
+    "${SWIFT_SOURCES[@]}" \
+    -o "${BUNDLE_DIR}/Contents/MacOS/Smelt"
 
 # 6. Write Info.plist
 echo " * Generating Info.plist..."
@@ -81,13 +97,17 @@ cat << 'EOF' > "${BUNDLE_DIR}/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.2</string>
+    <string>1.1.0</string>
     <key>CFBundleVersion</key>
-    <string>3</string>
+    <string>4</string>
     <key>LSMinimumSystemVersion</key>
-    <string>11.0</string>
+    <string>12.0</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleDocumentTypes</key>
