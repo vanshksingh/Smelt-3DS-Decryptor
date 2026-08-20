@@ -134,37 +134,36 @@ export class QueueView {
     }
 
     el.innerHTML = `
-      <div class="card-left">
-        <div class="rom-icon-badge">3DS</div>
-        <div class="rom-info">
-          <div class="rom-title-row">
-            <span class="rom-filename" title="${item.name}">${item.name}</span>
-            ${stateBadge}
-          </div>
-          <div class="rom-sub-row">
-            <span>${sizeMB} MB</span>
-            <span>•</span>
-            <span class="mono">${item.analysis?.productCode || 'CTR-3DS'}</span>
-            <span>•</span>
-            <span class="mono">${item.analysis?.titleId || ''}</span>
+      <div class="queue-card-main">
+        <div class="card-left">
+          <div class="rom-icon-badge">${(item.name.split('.').pop() || '3DS').slice(0, 3).toUpperCase()}</div>
+          <div class="rom-info">
+            <div class="rom-title-row">
+              <span class="rom-filename" title="${item.name}">${item.name}</span>
+              ${stateBadge}
+            </div>
+            <div class="rom-sub-row">
+              <span>${sizeMB} MB</span>
+              <span>•</span>
+              <span class="mono">${item.analysis?.productCode || 'CTR-3DS'}</span>
+              ${item.analysis?.titleId ? `<span>•</span><span class="mono">${item.analysis.titleId}</span>` : ''}
+            </div>
           </div>
         </div>
+        <div class="card-actions">
+          <button class="btn-action btn-inspect" title="Inspect ROM details">i</button>
+          ${item.status === ROM_STATUS.COMPLETED ? `
+            <button class="btn-action btn-download" title="Download decrypted ROM">DL</button>
+          ` : `
+            <button class="btn-action btn-run btn-single-forge" title="Forge this ROM">Run</button>
+          `}
+          <button class="btn-action btn-remove" title="Remove">×</button>
+        </div>
       </div>
-
       <div class="card-progress-zone">
         <div class="mini-progress-bar">
-          <div class="mini-progress-fill" style="width: ${item.progress}%"></div>
+          <div class="mini-progress-fill" style="width: ${item.progress || 0}%"></div>
         </div>
-      </div>
-
-      <div class="card-actions">
-        <button class="btn-action btn-inspect" title="Inspect ROM details">i</button>
-        ${item.status === ROM_STATUS.COMPLETED ? `
-          <button class="btn-action btn-download" title="Download decrypted ROM">DL</button>
-        ` : `
-          <button class="btn-action btn-single-forge" title="Forge this ROM">RUN</button>
-        `}
-        <button class="btn-action btn-remove" title="Remove">✕</button>
       </div>
     `;
 

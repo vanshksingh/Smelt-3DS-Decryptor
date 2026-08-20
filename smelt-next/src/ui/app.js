@@ -65,8 +65,8 @@ class SmeltNextApplication {
     const threads = navigator.hardwareConcurrency || 4;
     const level = hasCrypto ? LOG_LEVEL.SUCCESS : LOG_LEVEL.WARN;
     const msg = hasCrypto
-      ? `Hardware AES Acceleration: Active (${threads} Logical Cores). Bundled seeddb.bin loads at startup.`
-      : `Software emulation mode — Web Crypto API not available.`;
+      ? `WebCrypto AES online · ${threads} cores · seeddb bundled`
+      : `WebCrypto unavailable — decryption disabled in this browser`;
     this.bus.emit('log', { level, text: msg });
   }
 

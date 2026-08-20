@@ -17,6 +17,7 @@ export class ConsoleView {
 
     this.bindEvents();
     this.subscribeEvents();
+    this.appendLog('Smelt Next boot complete. Insert a game card or drop ROM files.', 'success');
   }
 
   bindEvents() {
