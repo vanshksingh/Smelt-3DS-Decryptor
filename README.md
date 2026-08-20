@@ -19,10 +19,16 @@ Download the latest compiled version of Smelt for macOS from the [**Releases Pag
 ### macOS Gatekeeper Warning
 Because this app is not signed through an Apple Developer account, macOS Gatekeeper may show an **"unidentified developer"** warning or say the app is damaged.
 
-If you encounter this:
-1. Delete the app and zip file you downloaded, and re-download them from GitHub.
-2. When you initially run it, it will bring a warning popup. Close it.
-3. Go to **System Settings**, then into **Privacy & Security** and scroll down. You'll see an option to allow the application to launch. Click on it, it will ask for your password, and then it will run.
+If you encounter this warning, follow these simple steps to allow the app to run:
+
+1. Double-click the `Smelt.app` icon. macOS will show a warning popup saying the app cannot be opened.
+2. Click **OK** or **Cancel** to close that warning popup.
+3. Open your Mac's **System Settings** and navigate to **Privacy & Security**.
+4. Scroll down to the "Security" section. You will see a message saying *Smelt was blocked from use because it is not from an identified developer*.
+5. Click the **Open Anyway** button next to this message.
+6. Enter your Mac login password when prompted. The app will now launch and work smoothly from now on!
+
+*(Note: If the "Open Anyway" button doesn't appear, delete the app, re-download the `.zip` file from GitHub, and try again).*
 
 ---
 
