@@ -1,11 +1,10 @@
 /**
- * Smelt Next — Main Application Bootstrap & Orchestrator (Loosely Coupled)
+ * Smelt Next — Main Application Bootstrap & Orchestrator
  */
 import { globalEventBus } from '../core/event-bus.js';
 import { QueueStore } from '../core/queue-store.js';
 import { ForgeService } from '../services/forge-service.js';
 import { DownloadService } from '../services/download-service.js';
-import { ThemeManager } from './theme-manager.js';
 import { DropzoneView } from './dropzone-view.js';
 import { QueueView } from './queue-view.js';
 import { ConsoleView } from './console-view.js';
@@ -39,7 +38,9 @@ class SmeltNextApplication {
       forgeAllBtn: document.getElementById('btn-forge-all'),
       clearAllBtn: document.getElementById('btn-clear-all'),
       formatSelect: document.getElementById('select-format'),
-      autoDownloadCheck: document.getElementById('check-auto-download')
+      autoDownloadCheck: document.getElementById('check-auto-download'),
+      addFileInput: document.getElementById('queue-file-input'),
+      panel: document.getElementById('view-queue')
     });
 
     // Console & Telemetry View
@@ -47,7 +48,7 @@ class SmeltNextApplication {
       container: document.getElementById('console-output'),
       speed: document.getElementById('hud-speed'),
       eta: document.getElementById('hud-eta'),
-      task: null, // Removed from new layout
+      task: null,
       clearBtn: document.getElementById('btn-clear-console'),
       exportBtn: document.getElementById('btn-export-console')
     });
@@ -70,39 +71,51 @@ class SmeltNextApplication {
   }
 
   wireEvents() {
-    // 1. Files Ingested from Dropzone or File Picker
+    // 1. Files Ingested from Dropzone, File Picker, or Queue Panel
     this.bus.on('files:ingested', (files) => {
-      // Trigger Cartridge Animation & View Transition
+      if (!files || files.length === 0) return;
+
       const anim = document.getElementById('cartridge-anim');
       const viewDropzone = document.getElementById('view-dropzone');
       const viewQueue = document.getElementById('view-queue');
-      
-      if (anim && viewDropzone && viewQueue && files.length > 0) {
-        // Reset any lingering animation, then start fresh
+      const isAlreadyInQueue = viewQueue?.classList.contains('active');
+
+      const processIngestedFiles = () => {
+        for (const file of files) {
+          if (file.name.toLowerCase().includes('seeddb')) {
+            file.arrayBuffer().then((buf) => {
+              this.forgeService.loadSeedDB(buf);
+            });
+          } else {
+            const item = this.queue.addItem(file);
+            this.forgeService.analyzeROM(item);
+          }
+        }
+      };
+
+      if (isAlreadyInQueue) {
+        // In Queue mode: add files instantly without cartridge animation
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: `Queued ${files.length} ROM file(s).` });
+        processIngestedFiles();
+      } else if (anim && viewDropzone && viewQueue) {
+        // In Dropzone mode: trigger realistic cartridge insertion animation
         anim.classList.remove('animate');
-        void anim.offsetWidth; // Force reflow to restart animation
+        void anim.offsetWidth; // Force reflow
         anim.classList.add('animate');
-        
-        // At ~70% of animation (1.75s) — cartridge approaches slot — swap views
+
+        // Mid-animation (~1.75s) swap views
         setTimeout(() => {
           viewDropzone.classList.remove('active');
           viewQueue.classList.add('active');
         }, 1750);
-        
-        // After animation fully completes (2.7s), remove class and process files
+
+        // After animation completes (2.7s), process files
         setTimeout(() => {
           anim.classList.remove('animate');
-          for (const file of files) {
-            if (file.name.toLowerCase().includes('seeddb')) {
-              file.arrayBuffer().then((buf) => {
-                this.forgeService.loadSeedDB(buf);
-              });
-            } else {
-              const item = this.queue.addItem(file);
-              this.forgeService.analyzeROM(item);
-            }
-          }
+          processIngestedFiles();
         }, 2700);
+      } else {
+        processIngestedFiles();
       }
     });
 
@@ -142,7 +155,7 @@ class SmeltNextApplication {
     const threadsEl = document.getElementById('hud-threads');
     if (threadsEl) {
       const cores = navigator.hardwareConcurrency || 4;
-      threadsEl.textContent = `Active (${cores}-Core)`;
+      threadsEl.textContent = `${cores}-Core`;
     }
 
     // 7. Eject & View Toggle
@@ -162,7 +175,7 @@ class SmeltNextApplication {
       if (viewDropzone && viewQueue) {
         viewDropzone.classList.remove('active');
         viewQueue.classList.add('active');
-        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Switched to Active Queue.' });
+        this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'Switched to ROM Queue.' });
       }
     };
 

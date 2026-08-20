@@ -13,6 +13,8 @@ export class QueueView {
     this.clearAllBtn = elements.clearAllBtn;
     this.formatSelect = elements.formatSelect;
     this.autoDownloadCheck = elements.autoDownloadCheck;
+    this.addFileInput = elements.addFileInput;
+    this.panelEl = elements.panel;
 
     this.bindEvents();
     this.subscribeStore();
@@ -31,6 +33,36 @@ export class QueueView {
       this.clearAllBtn.addEventListener('click', () => {
         this.store.clear();
       });
+    }
+
+    // Add ROMs file input in queue header
+    if (this.addFileInput) {
+      this.addFileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+          this.bus.emit('files:ingested', files);
+          this.addFileInput.value = '';
+        }
+      });
+    }
+
+    // Drag-and-drop support directly on Queue Panel
+    if (this.panelEl) {
+      ['dragenter', 'dragover'].forEach(eventName => {
+        this.panelEl.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }, false);
+      });
+
+      this.panelEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = Array.from(e.dataTransfer?.files || []);
+        if (files.length > 0) {
+          this.bus.emit('files:ingested', files);
+        }
+      }, false);
     }
   }
 

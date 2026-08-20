@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smelt Next — Nintendo 3DS ROM Forge & Decryptor</title>
+  <title>Smelt Next — Nintendo 3DS ROM Decryptor</title>
   <meta name="description" content="High-performance, client-side Nintendo 3DS ROM decryptor. 100% private, zero uploads.">
   <meta name="theme-color" content="#181920">
-  <link rel="manifest" href="manifest.json?v=20260821_02">
-  <link rel="stylesheet" href="styles/main.css?v=20260821_02">
+  <link rel="manifest" href="manifest.json?v=20260821_03">
+  <link rel="stylesheet" href="styles/main.css?v=20260821_03">
 </head>
 <body>
   <!-- Ambient Desktop Background -->
@@ -24,8 +24,8 @@
       <div class="cartridge-body">
         <div class="cartridge-notch"></div>
         <div class="cartridge-label-sticker">
-          <span class="cartridge-logo">SMELT</span>
-          <span class="cartridge-code">CTR-P-FORGE</span>
+          <span class="cartridge-logo">SMELT NEXT</span>
+          <span class="cartridge-code">CTR-P-SMELT</span>
           <span class="cartridge-bar-code"></span>
         </div>
         <div class="cartridge-contacts"></div>
@@ -86,7 +86,7 @@
 
               <div class="top-screen-content">
 
-                <!-- System Top Bar -->
+                <!-- System Top Bar with Integrated Metrics (Saves space below) -->
                 <header class="sys-top-bar">
                   <div class="sys-bar-left">
                     <span class="sys-stat-pill">
@@ -96,14 +96,26 @@
                         <span class="wifi-bar b3"></span>
                         <span class="wifi-bar b4"></span>
                       </span>
-                      <span class="sys-label">3DS-NET</span>
+                      <span class="sys-label">SMELT-NET</span>
                     </span>
-                    <span class="sys-stat-pill sys-steps">
-                      <span class="sys-label">MB Forged:</span>
-                      <span id="hud-steps" class="sys-val">0</span>
+                    <span class="sys-stat-pill sys-metric">
+                      <span class="sys-label">SPEED:</span>
+                      <span id="hud-speed" class="sys-val">0.0 MB/s</span>
+                    </span>
+                    <span class="sys-stat-pill sys-metric">
+                      <span class="sys-label">ETA:</span>
+                      <span id="hud-eta" class="sys-val">Ready</span>
+                    </span>
+                    <span class="sys-stat-pill sys-metric">
+                      <span class="sys-label">CPU:</span>
+                      <span id="hud-threads" class="sys-val">—</span>
                     </span>
                   </div>
                   <div class="sys-bar-right">
+                    <span class="sys-stat-pill sys-steps">
+                      <span class="sys-label">FORGED:</span>
+                      <span id="hud-steps" class="sys-val">0 MB</span>
+                    </span>
                     <span class="sys-clock" id="sys-clock">--:--</span>
                     <span class="sys-battery" title="Battery 100%">
                       <span class="battery-body"><span class="battery-fill"></span></span>
@@ -119,25 +131,25 @@
                       <div class="cartridge-slot-graphic" aria-hidden="true">
                         <div class="slot-opening"></div>
                         <div class="floating-cartridge">
-                          <span class="cart-label">3DS FORGE</span>
+                          <span class="cart-label">SMELT NEXT</span>
                         </div>
                       </div>
 
-                      <h1 class="dropzone-headline">Insert 3DS Game Card</h1>
+                      <h1 class="dropzone-headline">Insert Game Card</h1>
                       <p class="dropzone-sub">
                         Drop <strong class="code-tag">.3DS</strong>, <strong class="code-tag">.CCI</strong>,
-                        <strong class="code-tag">.CIA</strong>, or <strong class="code-tag">.CXI</strong> files to inspect and forge
+                        <strong class="code-tag">.CIA</strong>, or <strong class="code-tag">.CXI</strong> files to inspect & forge
                       </p>
 
                       <label for="file-input" class="btn-nintendo primary">
                         <span class="btn-gloss"></span>
-                        Select ROM Files
+                        Load Game Cards
                         <input type="file" id="file-input" multiple hidden>
                       </label>
 
                       <p class="hardware-spec-badge">
                         <span class="badge-dot"></span>
-                        WebCrypto Hardware Acceleration · 100% Client-Side Private
+                        Client-Side WebCrypto · 100% Private (Zero Uploads)
                       </p>
                     </div>
                   </section>
@@ -148,8 +160,12 @@
                   <div class="queue-panel">
                     <div class="queue-panel-header">
                       <div class="queue-header-left">
-                        <h2 class="panel-title">ROM Forge Queue</h2>
-                        <button id="btn-eject-top" class="btn-micro">Eject</button>
+                        <h2 class="panel-title">ROM Queue</h2>
+                        <label for="queue-file-input" class="btn-micro btn-add-roms" title="Add more ROMs to queue">
+                          + Add ROMs
+                          <input type="file" id="queue-file-input" multiple hidden>
+                        </label>
+                        <button id="btn-eject-top" class="btn-micro" title="Return to Card Slot">Eject</button>
                       </div>
                       <div class="queue-header-right">
                         <label class="select-label" for="select-format">Format:</label>
@@ -167,29 +183,11 @@
 
                     <div id="queue-list" class="queue-container" role="list">
                       <div id="empty-queue" class="queue-empty-state">
-                        <p>No ROMs queued — insert a game card above.</p>
+                        <p>No ROMs queued — insert a game card or click + Add ROMs.</p>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <!-- HUD Footer -->
-                <footer class="sys-bottom-hud">
-                  <div class="hud-metric">
-                    <span class="metric-label">THROUGHPUT</span>
-                    <span id="hud-speed" class="metric-value">0.0 MB/s</span>
-                  </div>
-                  <div class="hud-divider"></div>
-                  <div class="hud-metric">
-                    <span class="metric-label">ETA</span>
-                    <span id="hud-eta" class="metric-value">Ready</span>
-                  </div>
-                  <div class="hud-divider"></div>
-                  <div class="hud-metric">
-                    <span class="metric-label">CPU CORES</span>
-                    <span id="hud-threads" class="metric-value">—</span>
-                  </div>
-                </footer>
 
               </div><!-- /top-screen-content -->
             </div><!-- /top-screen -->
@@ -229,7 +227,7 @@
           </div>
         </div>
 
-        <!-- Bottom Touch Screen -->
+        <!-- Bottom Touch Screen & Home Button (on the exact same bezel plateau) -->
         <div class="bottom-bezel-inner">
           <div class="screen-wrapper bottom-screen-wrapper">
             <div class="screen bottom-screen">
@@ -266,6 +264,13 @@
               </div>
             </div>
           </div>
+
+          <!-- Home Button on Bottom Screen Plateau -->
+          <div class="home-button-row">
+            <button class="home-btn" id="btn-hw-home" title="HOME: Toggle View">
+              <span class="home-text">HOME</span>
+            </button>
+          </div>
         </div>
 
         <!-- Right Controls -->
@@ -285,14 +290,6 @@
             <button class="sys-pill-btn" id="btn-hw-start" title="Export Log">START</button>
             <button class="sys-pill-btn" id="btn-hw-select" title="Clear Console">SELECT</button>
           </div>
-        </div>
-
-        <!-- Home Button Row -->
-        <div class="home-button-row">
-          <button class="home-btn" id="btn-hw-home" title="HOME: Toggle View">
-            <span class="home-ring"></span>
-            <span class="home-text">HOME</span>
-          </button>
         </div>
 
         <!-- Cartridge Slot Indicator (visual only) -->
@@ -320,6 +317,6 @@
     <button id="btn-export-console"></button>
   </div>
 
-  <script type="module" src="src/ui/app.js?v=20260821_02"></script>
+  <script type="module" src="src/ui/app.js?v=20260821_03"></script>
 </body>
 </html>
