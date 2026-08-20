@@ -17,18 +17,16 @@
 Download the latest compiled version of Smelt for macOS from the [**Releases Page**](https://github.com/vanshksingh/Smelt-3DS-Decryptor/releases). Just download the `.zip`, extract it, and drag `Smelt.app` into your Applications folder!
 
 ### macOS Gatekeeper Warning
-Because this app is not signed through an Apple Developer account, macOS Gatekeeper may show an **"unidentified developer"** warning or say the app is damaged. 
+Because this app is not signed through an Apple Developer account, macOS Gatekeeper may show an **"unidentified developer"** warning or say the app is damaged.
 
-To open the app, you must do **one** of the following:
-- **Right-click (or Control-click)** the `Smelt.app` icon in your Applications folder and select **Open**, OR
-- Open Terminal and run the following command to clear the quarantine flag:
-  ```bash
-  xattr -cr /Applications/Smelt.app
-  ```
+If you encounter this:
+1. Delete the app and zip file you downloaded, and re-download them from GitHub.
+2. When you initially run it, it will bring a warning popup. Close it.
+3. Go to **System Settings**, then into **Privacy & Security** and scroll down. You'll see an option to allow the application to launch. Click on it, it will ask for your password, and then it will run.
 
 ---
 
-**Smelt** is a professional SwiftUI frontend that bundles and coordinates standard open-source command-line toolchains (`ctrtool`, `makerom`, and `ctrdecrypt`). It is designed to take the headache out of preparing 3DS ROMs for modern emulators (like Azahar, Lime3DS, or Citra) on macOS by providing a seamless, drag-and-drop batch processing experience.
+**Smelt** is a fast, native SwiftUI frontend that bundles and coordinates standard open-source command-line toolchains (`ctrtool`, `makerom`, and `ctrdecrypt`). It is designed to make preparing 3DS ROMs for modern emulators (like Azahar, Lime3DS, or Citra) on macOS simple, providing a seamless, drag-and-drop batch processing experience.
 
 Forget the terminal. Just drag your files in, and let Smelt forge them into shape.
 

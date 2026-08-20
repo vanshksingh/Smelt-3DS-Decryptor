@@ -135,6 +135,7 @@ class AppState: ObservableObject {
                 
                 guard !newROMs.isEmpty else { return }
                 
+                self.objectWillChange.send()
                 let startIdx = self.files.count
                 self.files.append(contentsOf: newROMs)
                 
@@ -176,6 +177,7 @@ class AppState: ObservableObject {
             
             DispatchQueue.main.async {
                 if let i = self.files.firstIndex(where: { $0.id == romID }) {
+                    self.objectWillChange.send()
                     self.files[i].analysis = a
                     if let tid = swiftMeta.titleID { self.files[i].titleID = tid }
                     if let pc = swiftMeta.productCode { self.files[i].productCode = pc }
