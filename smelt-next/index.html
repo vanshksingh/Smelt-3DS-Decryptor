@@ -9,300 +9,123 @@
   <link rel="manifest" href="manifest.json?v=20260821_19">
   <link rel="stylesheet" href="styles/main.css?v=20260821_19">
 </head>
-<body>
-  <!-- Ambient Desktop Background -->
-  <div class="studio-floor" aria-hidden="true"></div>
-  <div class="ambient-glow" aria-hidden="true"></div>
+  <!-- Modern Animated Background -->
+  <div class="glass-bg-animation" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
 
-  <!-- Main Console Stage (position: relative context for cartridge animation) -->
-  <main class="console-stage">
-
-    <!-- ============================================================ -->
-    <!-- CARTRIDGE INSERTION ANIMATION (outside chassis for z-index)  -->
-    <!-- ============================================================ -->
-    <div id="cartridge-anim" class="cartridge-insert-anim" aria-hidden="true">
-      <div class="cartridge-body">
-        <div class="cartridge-notch"></div>
-        <div class="cartridge-label-sticker">
-          <span class="cartridge-logo">SMELT NEXT</span>
-          <span class="cartridge-code">CTR-P-SMELT</span>
-          <span class="cartridge-bar-code"></span>
-        </div>
-        <div class="cartridge-contacts"></div>
+  <div class="app-layout">
+    <!-- Top System App Bar -->
+    <header class="app-top-bar glass-panel">
+      <div class="brand">
+        <span class="brand-logo">SMELT</span>
+        <span class="brand-suffix">NEXT</span>
       </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- NEW 3DS XL HARDWARE CHASSIS                                  -->
-    <!-- ============================================================ -->
-    <div class="n3ds-chassis">
-
-      <section class="lid lid-top" aria-label="Top screen">
-        <span class="lid-bumper tl" aria-hidden="true"></span>
-        <span class="lid-bumper tr" aria-hidden="true"></span>
-
-        <div class="edge-slider vol-slider" aria-hidden="true">
-          <span class="edge-label">VOL.</span>
-          <div class="edge-track"><i class="edge-thumb"></i></div>
-          <span class="edge-label muted">OFF</span>
-        </div>
-
-        <div class="edge-slider depth-slider" aria-hidden="true">
-          <span class="edge-label">3D</span>
-          <div class="edge-track"><i class="edge-thumb high"></i><b class="depth-led"></b></div>
-          <span class="edge-label muted">OFF</span>
-        </div>
-
-        <div class="top-glass">
-          <div class="inner-cams" aria-hidden="true">
-            <span class="cam-dot tiny"></span>
-            <span class="cam-dot main" title="Inner camera"></span>
-            <span class="cam-dot tiny"></span>
-          </div>
-
-          <div class="speaker-plus left" aria-hidden="true">
-            <span></span><span class="on"></span><span></span>
-            <span class="on"></span><span class="on"></span><span class="on"></span>
-            <span></span><span class="on"></span><span></span>
-          </div>
-
-          <div class="screen-wrapper top-screen-wrapper">
-            <div class="screen top-screen" id="screen-top">
-
-              <div class="top-screen-content">
-
-                <header class="sys-top-bar">
-                  <div class="sys-bar-left">
-                    <span class="sys-brand-mark">SMELT</span>
-                    <span class="sys-stat-pill">
-                      <span class="wifi-icon" aria-label="WiFi">
-                        <span class="wifi-bar b1"></span>
-                        <span class="wifi-bar b2"></span>
-                        <span class="wifi-bar b3"></span>
-                        <span class="wifi-bar b4"></span>
-                      </span>
-                    </span>
-                  </div>
-                  <div class="sys-bar-center">
-                    <span class="sys-metric-chip">
-                      <span class="sys-label">SPD</span>
-                      <span id="hud-speed" class="sys-val">0.0 MB/s</span>
-                    </span>
-                    <span class="sys-metric-chip">
-                      <span class="sys-label">ETA</span>
-                      <span id="hud-eta" class="sys-val">Ready</span>
-                    </span>
-                    <span class="sys-metric-chip sys-metric-hide-sm">
-                      <span class="sys-label">CPU</span>
-                      <span id="hud-threads" class="sys-val">—</span>
-                    </span>
-                  </div>
-                  <div class="sys-bar-right">
-                    <span class="sys-metric-chip">
-                      <span class="sys-label">OUT</span>
-                      <span id="hud-steps" class="sys-val">0 MB</span>
-                    </span>
-                    <span class="sys-clock" id="sys-clock">--:--</span>
-                    <span class="sys-battery" title="Battery 100%">
-                      <span class="battery-body"><span class="battery-fill"></span></span>
-                    </span>
-                  </div>
-                </header>
-
-                <!-- VIEW 1: Dropzone -->
-                <div id="view-dropzone" class="view-layer active">
-                  <section id="dropzone" class="dropzone-area" aria-label="ROM Ingestion Drop Zone">
-                    <div class="dropzone-inner">
-
-                      <div class="cartridge-slot-graphic" aria-hidden="true">
-                        <div class="slot-opening"></div>
-                        <div class="floating-cartridge">
-                          <span class="cart-label">SMELT NEXT</span>
-                        </div>
-                      </div>
-
-                      <h1 class="dropzone-headline">Insert Game Card</h1>
-                      <p class="dropzone-sub">
-                        Drop <strong class="code-tag">.3DS</strong>, <strong class="code-tag">.CCI</strong>,
-                        <strong class="code-tag">.CIA</strong>, or <strong class="code-tag">.CXI</strong> files to inspect & forge
-                      </p>
-
-                      <label for="file-input" class="btn-nintendo primary">
-                        <span class="btn-gloss"></span>
-                        Load Game Cards
-                        <input type="file" id="file-input" multiple hidden>
-                      </label>
-
-                      <p class="hardware-spec-badge">
-                        <span class="badge-dot"></span>
-                        Client-Side WebCrypto · 100% Private (Zero Uploads)
-                      </p>
-                    </div>
-                  </section>
-                </div>
-
-                <!-- VIEW 2: Active Queue -->
-                <div id="view-queue" class="view-layer">
-                  <div class="queue-panel">
-                    <div class="queue-panel-header">
-                      <div class="queue-toolbar-row">
-                        <div class="queue-toolbar-left">
-                          <h2 class="panel-title">ROM Queue</h2>
-                          <span class="queue-hint">Drop cards here anytime</span>
-                        </div>
-                        <div class="queue-toolbar-actions">
-                          <button id="btn-forge-all" type="button" class="btn-forge-all" disabled>
-                            <span class="btn-forge-glow"></span>
-                            Forge All
-                          </button>
-                          <label for="queue-file-input" class="btn-micro btn-add-roms" title="Add more ROMs">
-                            + Add
-                            <input type="file" id="queue-file-input" multiple hidden>
-                          </label>
-                          <button id="btn-eject-top" type="button" class="btn-micro" title="Return to card slot">Eject</button>
-                        </div>
-                      </div>
-                      <div class="queue-toolbar-row queue-toolbar-options">
-                        <label class="select-label" for="select-format">Output</label>
-                        <select id="select-format" class="select-nintendo">
-                          <option value="same" selected>Keep original</option>
-                          <option value="3ds">.3DS</option>
-                          <option value="cci">.CCI</option>
-                        </select>
-                        <label class="checkbox-nintendo">
-                          <input type="checkbox" id="check-auto-download" checked>
-                          <span>Auto-save when done</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div id="empty-queue" class="queue-empty-state">
-                      <p>No ROMs queued — insert a game card or click + Add ROMs.</p>
-                    </div>
-                    <div id="queue-list" class="queue-container" role="list"></div>
-                  </div>
-                </div>
-
-              </div><!-- /top-screen-content -->
-            </div><!-- /top-screen -->
-          </div><!-- /top-screen-wrapper -->
-
-          <div class="speaker-plus right" aria-hidden="true">
-            <span></span><span class="on"></span><span></span>
-            <span class="on"></span><span class="on"></span><span class="on"></span>
-            <span></span><span class="on"></span><span></span>
-          </div>
-        </div>
-      </section>
-
-      <div class="n3ds-hinge" aria-hidden="true">
-        <span class="hinge-cap"></span>
-        <span class="hinge-barrel"></span>
-        <span class="hinge-led" title="Notification"></span>
-        <span class="hinge-cap"></span>
+      
+      <div class="system-metrics">
+        <div class="metric-chip"><span class="label">SPD</span><span id="hud-speed" class="val">0.0 MB/s</span></div>
+        <div class="metric-chip"><span class="label">ETA</span><span id="hud-eta" class="val">Ready</span></div>
+        <div class="metric-chip"><span class="label">CPU</span><span id="hud-threads" class="val">—</span></div>
       </div>
+      
+      <div class="system-status">
+        <div class="metric-chip"><span class="label">OUT</span><span id="hud-steps" class="val">0 MB</span></div>
+        <span class="sys-clock" id="sys-clock">--:--</span>
+      </div>
+    </header>
 
-      <section class="lid lid-bottom" aria-label="Touch screen and controls">
-        <div class="controls-left" aria-label="Left controls">
-          <div class="circle-pad" title="Circle Pad">
-            <div class="circle-pad-disc"></div>
-          </div>
-          <div class="d-pad-unit" title="D-Pad">
-            <div class="d-pad-body">
-              <button class="d-pad-btn up" id="dpad-up" aria-label="D-Pad Up"><i></i></button>
-              <button class="d-pad-btn left" id="dpad-left" aria-label="D-Pad Left"><i></i></button>
-              <div class="d-pad-center" aria-hidden="true"></div>
-              <button class="d-pad-btn right" id="dpad-right" aria-label="D-Pad Right"><i></i></button>
-              <button class="d-pad-btn down" id="dpad-down" aria-label="D-Pad Down"><i></i></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="bottom-bezel-inner">
-          <div class="screen-wrapper bottom-screen-wrapper">
-            <div class="screen bottom-screen" id="screen-bottom">
-              <div class="touch-grid-pattern" aria-hidden="true"></div>
-
-              <div class="bottom-screen-content">
-                <!-- Touch Nav Bar -->
-                <div class="touch-nav-bar">
-                  <div class="touch-nav-left">
-                    <span class="touch-tab-dot"></span>
-                    <span class="touch-tab-title">Smelt Console</span>
-                  </div>
-                  <div class="touch-actions-quick">
-                    <button id="btn-touch-clear-log" type="button" class="touch-micro-btn">Clear</button>
-                    <button id="btn-touch-export-log" type="button" class="touch-micro-btn">Export</button>
-                  </div>
-                </div>
-
-                <div class="console-view-panel">
-                  <div class="console-crt-frame">
-                    <div id="console-output" class="console-terminal" role="log" aria-live="polite"></div>
-                    <div class="console-cursor-line" aria-hidden="true"><span class="console-prompt">&gt;</span><span class="console-cursor"></span></div>
-                  </div>
-                </div>
-
-                <div class="touch-quick-bar">
-                  <button id="touch-btn-forge" type="button" class="touch-action-btn primary">
-                    <span class="touch-key">A</span>
-                    Forge All
-                  </button>
-                  <button id="touch-btn-clear" type="button" class="touch-action-btn secondary">
-                    <span class="touch-key">B</span>
-                    Clear
-                  </button>
-                  <button id="touch-btn-format" type="button" class="touch-action-btn tertiary">
-                    <span class="touch-key">X</span>
-                    Format
-                  </button>
-                </div>
+    <main class="app-content">
+      <!-- Sidebar: Queue & Dropzone -->
+      <aside class="sidebar glass-panel">
+        
+        <!-- View: Dropzone -->
+        <div id="view-dropzone" class="view-layer active">
+          <section id="dropzone" class="dropzone-area material-dropzone">
+            <div class="dropzone-inner">
+              <div class="upload-icon-wrapper">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               </div>
+              <h2 class="dropzone-title">Upload ROMs</h2>
+              <p class="dropzone-subtitle">Drop <span class="mono">.3DS, .CCI, .CIA, .CXI</span> here</p>
+              <label for="file-input" class="btn-material primary-btn">
+                Select Files
+                <input type="file" id="file-input" multiple hidden>
+              </label>
+              <div class="privacy-badge">Client-Side WebCrypto · 100% Private</div>
             </div>
-          </div>
-
-          <div class="sys-buttons-row">
-            <button class="home-btn" id="btn-hw-home" title="HOME: Toggle View" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5.5v-5h-5v5H4z" fill="currentColor"/></svg>
-            </button>
-          </div>
+            <!-- Hidden cartridge animation container for JS compatibility -->
+            <div id="cartridge-anim" style="display:none;"></div>
+          </section>
         </div>
 
-        <div class="controls-right" aria-label="Right controls">
-          <div class="face-cluster">
-            <div class="c-stick-unit" title="C-Stick">
-              <div class="c-stick-nub"></div>
-            </div>
-            <div class="abxy-cluster" aria-label="Action buttons">
-              <button class="hw-btn btn-x" id="btn-hw-x" title="X: Toggle Format" type="button"><span>X</span></button>
-              <button class="hw-btn btn-y" id="btn-hw-y" title="Y: Toggle Auto-Save" type="button"><span>Y</span></button>
-              <button class="hw-btn btn-a" id="btn-hw-a" title="A: Forge All" type="button"><span>A</span></button>
-              <button class="hw-btn btn-b" id="btn-hw-b" title="B: Clear Queue" type="button"><span>B</span></button>
+        <!-- View: Active Queue -->
+        <div id="view-queue" class="view-layer">
+          <div class="queue-header">
+            <h2 class="section-title">Queue</h2>
+            <div class="queue-actions">
+              <label for="queue-file-input" class="icon-btn" title="Add ROMs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                <input type="file" id="queue-file-input" multiple hidden>
+              </label>
+              <button id="btn-eject-top" class="icon-btn" title="Close Queue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
             </div>
           </div>
-          <div class="start-select-stack">
-            <button class="sys-oval" id="btn-hw-start" type="button" title="Export Log">START</button>
-            <button class="sys-oval" id="btn-hw-select" type="button" title="Clear Console">SELECT</button>
+          
+          <div class="queue-options">
+            <select id="select-format" class="material-select">
+              <option value="same" selected>Keep original</option>
+              <option value="3ds">.3DS</option>
+              <option value="cci">.CCI</option>
+            </select>
+            <label class="material-checkbox">
+              <input type="checkbox" id="check-auto-download" checked>
+              <span>Auto-save</span>
+            </label>
+          </div>
+
+          <div id="empty-queue" class="empty-state">No ROMs queued.</div>
+          <div id="queue-list" class="queue-list" role="list"></div>
+          
+          <div class="queue-footer">
+            <button id="btn-forge-all" class="btn-material forge-btn" disabled>Forge All</button>
           </div>
         </div>
+      </aside>
 
-        <div class="mic-mark" aria-hidden="true">MIC</div>
+      <!-- Main Area: Console -->
+      <section class="console-section glass-panel">
+        <div class="console-header">
+          <h2 class="section-title">Console Output</h2>
+          <div class="console-actions">
+            <button id="btn-touch-clear-log" class="text-btn">Clear</button>
+            <button id="btn-touch-export-log" class="text-btn">Export</button>
+          </div>
+        </div>
+        <div class="console-wrapper">
+          <div id="console-output" class="console-terminal material-terminal" role="log" aria-live="polite"></div>
+        </div>
       </section>
-    </div>
-  </main><!-- /console-stage -->
+    </main>
+  </div>
 
   <!-- ROM Inspector Modal -->
   <div id="inspector-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal-dialog frutiger-modal">
-      <button class="modal-close" aria-label="Close Inspector">x</button>
+    <div class="modal-dialog material-modal glass-panel">
+      <button class="modal-close material-close" aria-label="Close Inspector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
       <div class="inspector-content"></div>
     </div>
   </div>
 
   <div class="sr-only" aria-hidden="true">
-    <button id="btn-clear-all" type="button">Clear queue</button>
-    <button id="btn-clear-console" type="button">Clear console</button>
-    <button id="btn-export-console" type="button">Export console</button>
+    <button id="btn-clear-all" type="button"></button>
+    <button id="btn-clear-console" type="button"></button>
+    <button id="btn-export-console" type="button"></button>
   </div>
 
   <script type="module" src="src/ui/app.js?v=20260821_19"></script>
