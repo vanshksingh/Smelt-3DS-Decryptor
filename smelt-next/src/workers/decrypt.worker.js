@@ -2,9 +2,9 @@
  * Smelt Next — High Performance Background Decryption Worker
  */
 
-import { NCCHReader } from '../crypto/ncch.js?v=20260821_02';
-import { CIAReader } from '../crypto/cia.js?v=20260821_02';
-import { KeyManager } from '../crypto/keys.js?v=20260821_02';
+import { NCCHReader } from '../crypto/ncch.js?v=20260821_03';
+import { CIAReader } from '../crypto/cia.js?v=20260821_03';
+import { KeyManager } from '../crypto/keys.js?v=20260821_03';
 
 const keyManager = new KeyManager();
 
@@ -123,9 +123,15 @@ async function handleRomProcessing({ fileId, file, options }) {
   const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
 
   if (patchResult.wasClean) {
-    log(`ROM is already fully clean/decrypted (${sizeMB} MB). Output prepared in ${elapsed}s.`, 'success');
+    log(`ROM is already clean with active NoCrypto flags (${sizeMB} MB). Output ready in ${elapsed}s.`, 'success');
   } else {
     log(`Forged NoCrypto flag on ${patchResult.patchedCount} partition(s) successfully in ${elapsed}s!`, 'success');
+  }
+
+  if (ext === 'cia') {
+    log('CITRA TIP: Install this .cia via Citra menu: File → Install CIA... (Do not use File → Open on .cia files).', 'info');
+  } else {
+    log(`Ready for Citra / Lime3DS / hardware via File → Open!`, 'info');
   }
 
   self.postMessage({

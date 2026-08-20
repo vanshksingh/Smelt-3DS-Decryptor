@@ -178,7 +178,7 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* 3D Depth Slider — Properly positioned and never cut off */
+/* 3D Depth Slider */
 .slider-3d-wrap {
   position: absolute; right: 12px; top: 18%;
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -532,7 +532,7 @@ body {
       #1c1e27 75%,
       var(--chassis-shadow) 100%);
   border-radius: 14px 14px 46px 46px;
-  padding: 24px 32px 28px 32px;
+  padding: 22px 30px 26px 30px;
   border: 1px solid var(--chassis-border);
   box-shadow:
     inset 0 2px 2px rgba(255,255,255,0.12),
@@ -540,9 +540,9 @@ body {
     inset 50px 0 70px rgba(0,0,0,0.08),
     inset -50px 0 70px rgba(0,0,0,0.08);
   display: grid;
-  grid-template-columns: 140px 1fr 140px;
+  grid-template-columns: 135px 1fr 135px;
   grid-template-rows: 1fr;
-  gap: 14px;
+  gap: 12px;
   position: relative;
   align-items: center;
 }
@@ -565,15 +565,15 @@ body {
    -------------------------------------------------------------------------- */
 .controls-left {
   grid-column: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px;
 }
 .circle-pad {
-  width: 82px; height: 82px; background: #14151c; border-radius: 50%;
+  width: 80px; height: 80px; background: #14151c; border-radius: 50%;
   box-shadow: inset 0 4px 10px rgba(0,0,0,0.95), 0 1px 1px rgba(255,255,255,0.06);
   display: flex; align-items: center; justify-content: center;
 }
 .circle-pad-disc {
-  width: 67px; height: 67px;
+  width: 65px; height: 65px;
   background: radial-gradient(circle at 38% 38%, #5c6070 0%, #30323c 65%, #28292f 100%);
   border-radius: 50%; border: 1px solid #22242e;
   box-shadow: inset 0 -3px 6px rgba(0,0,0,0.7), 0 3px 8px rgba(0,0,0,0.8);
@@ -582,13 +582,13 @@ body {
 }
 .circle-pad-disc:active { transform: translate(2px,2px); }
 .pad-grip-ring {
-  width: 42px; height: 42px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   border: 1.5px solid rgba(255,255,255,0.1);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
 }
 
-.d-pad-unit { width: 78px; height: 78px; display: flex; align-items: center; justify-content: center; }
-.d-pad-body { width: 78px; height: 78px; position: relative; }
+.d-pad-unit { width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; }
+.d-pad-body { width: 76px; height: 76px; position: relative; }
 .d-pad-btn {
   position: absolute;
   background: linear-gradient(145deg, #30323e, #202230);
@@ -606,15 +606,15 @@ body {
   background: rgba(150,160,185,0.7);
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
-.d-pad-btn.up { top:0; left:26px; width:26px; height:28px; border-radius:4px 4px 0 0; }
-.d-pad-btn.down { bottom:0; left:26px; width:26px; height:28px; border-radius:0 0 4px 4px; }
-.d-pad-btn.left { top:26px; left:0; width:28px; height:26px; border-radius:4px 0 0 4px; }
-.d-pad-btn.right { top:26px; right:0; width:28px; height:26px; border-radius:0 4px 4px 0; }
+.d-pad-btn.up { top:0; left:25px; width:26px; height:27px; border-radius:4px 4px 0 0; }
+.d-pad-btn.down { bottom:0; left:25px; width:26px; height:27px; border-radius:0 0 4px 4px; }
+.d-pad-btn.left { top:25px; left:0; width:27px; height:26px; border-radius:4px 0 0 4px; }
+.d-pad-btn.right { top:25px; right:0; width:27px; height:26px; border-radius:0 4px 4px 0; }
 .d-pad-btn.down::after { clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
 .d-pad-btn.left::after { clip-path: polygon(100% 0%, 0% 50%, 100% 100%); }
 .d-pad-btn.right::after { clip-path: polygon(0% 0%, 100% 50%, 0% 100%); }
 .d-pad-center {
-  position: absolute; top:26px; left:26px; width:26px; height:26px;
+  position: absolute; top:25px; left:25px; width:26px; height:26px;
   background: #1a1c26; border-radius: 50%;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.9); pointer-events: none;
 }
@@ -725,15 +725,26 @@ body {
 
 /* --------------------------------------------------------------------------
    RIGHT CONTROLS (C-Stick + ABXY + Start/Select)
+   Authentic New 3DS XL Hardware layout:
+   - C-Stick nub at top-left
+   - ABXY diamond: X (Top/Blue), A (Right/Red), B (Bottom/Yellow), Y (Left/Green)
+   - START / SELECT pills neatly arranged below
    -------------------------------------------------------------------------- */
 .controls-right {
   grid-column: 3;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: space-between; padding: 6px 0;
+  align-items: center; justify-content: space-between;
+  height: 100%;
+  padding: 4px 0 2px 0;
 }
-.c-stick-unit { align-self: flex-start; margin-left: 4px; }
+
+/* C-Stick Nub */
+.c-stick-unit {
+  align-self: flex-start;
+  margin-left: 6px;
+}
 .c-stick-nub {
-  width: 26px; height: 26px;
+  width: 24px; height: 24px;
   background: radial-gradient(circle at 38% 38%, #7a8090 0%, #454850 80%);
   border-radius: 50%; border: 1px solid #20222a;
   box-shadow: inset 0 -2px 4px rgba(0,0,0,0.7), 0 2px 4px rgba(0,0,0,0.7);
@@ -741,48 +752,65 @@ body {
 }
 .c-stick-nub:active { transform: translate(1px,1px); }
 
-/* ABXY Cluster */
+/* ABXY Cluster — Authentic Nintendo Super Famicom Cross Layout */
 .abxy-cluster {
-  position: relative; width: 108px; height: 108px;
-  transform: rotate(45deg); margin-top: 6px;
+  position: relative;
+  width: 96px; height: 96px;
+  transform: rotate(45deg);
+  margin-top: 2px;
 }
 .hw-btn {
-  width: 34px; height: 34px; border-radius: 50%; border: none;
-  cursor: pointer; position: absolute; transform: rotate(-45deg);
+  width: 32px; height: 32px;
+  border-radius: 50%; border: none;
+  cursor: pointer; position: absolute;
+  transform: rotate(-45deg);
   display: flex; align-items: center; justify-content: center;
   box-shadow:
-    inset 0 2px 4px rgba(255,255,255,0.5),
+    inset 0 2px 4px rgba(255,255,255,0.45),
     inset 0 -2px 4px rgba(0,0,0,0.5),
-    0 4px 10px rgba(0,0,0,0.9);
+    0 4px 8px rgba(0,0,0,0.9);
   transition: all 0.08s ease;
 }
 .btn-surface {
-  font-family: var(--font-display); font-weight: 900; font-size: 0.95rem;
+  font-family: var(--font-display); font-weight: 900; font-size: 0.9rem;
   color: rgba(255,255,255,0.95); text-shadow: 0 1px 2px rgba(0,0,0,0.7);
   pointer-events: none;
 }
-.hw-btn.btn-x { top:0; left:0; background: radial-gradient(circle at 35% 35%, #4daee0, var(--sfc-blue)); }
-.hw-btn.btn-y { top:0; right:0; background: radial-gradient(circle at 35% 35%, #5ec882, var(--sfc-green)); }
-.hw-btn.btn-a { bottom:0; left:0; background: radial-gradient(circle at 35% 35%, #e86470, var(--sfc-red)); }
-.hw-btn.btn-b { bottom:0; right:0; background: radial-gradient(circle at 35% 35%, #f0c440, var(--sfc-yellow)); }
+
+/* Authentic positions in 45deg rotated container:
+   - top:0, left:0     => TOP    (X - Blue)
+   - top:0, right:0    => RIGHT  (A - Red)
+   - bottom:0, right:0 => BOTTOM (B - Yellow)
+   - bottom:0, left:0  => LEFT   (Y - Green)
+*/
+.hw-btn.btn-x { top: 0; left: 0; background: radial-gradient(circle at 35% 35%, #4daee0, var(--sfc-blue)); }
+.hw-btn.btn-a { top: 0; right: 0; background: radial-gradient(circle at 35% 35%, #e86470, var(--sfc-red)); }
+.hw-btn.btn-b { bottom: 0; right: 0; background: radial-gradient(circle at 35% 35%, #f0c440, var(--sfc-yellow)); }
+.hw-btn.btn-y { bottom: 0; left: 0; background: radial-gradient(circle at 35% 35%, #5ec882, var(--sfc-green)); }
+
 .hw-btn:active {
-  transform: rotate(-45deg) translateY(2.5px);
+  transform: rotate(-45deg) translateY(2px);
   box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.9);
 }
 
-/* Start / Select */
-.start-select-cluster { display: flex; gap: 7px; align-self: flex-end; margin-right: 4px; }
+/* Start / Select Buttons */
+.start-select-cluster {
+  display: flex; gap: 6px;
+  align-self: flex-end;
+  margin-right: 4px;
+  margin-top: 6px;
+}
 .sys-pill-btn {
   background: linear-gradient(145deg, #282a36, #171820);
-  color: #7080a0; font-family: var(--font-display); font-size: 0.55rem;
+  color: #7080a0; font-family: var(--font-display); font-size: 0.52rem;
   font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;
-  border: 1px solid #0c0d14; border-radius: 9px; padding: 4px 11px;
+  border: 1px solid #0c0d14; border-radius: 8px; padding: 3px 9px;
   cursor: pointer;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 5px rgba(0,0,0,0.7);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.7);
   transition: all 0.1s;
 }
-.sys-pill-btn:hover { color: #dce8f8; }
-.sys-pill-btn:active { transform: translateY(1.5px); box-shadow: 0 0 2px rgba(0,0,0,0.7); }
+.sys-pill-btn:hover { color: #dce8f8; background: linear-gradient(145deg, #323544, #1e202a); }
+.sys-pill-btn:active { transform: translateY(1px); box-shadow: 0 0 2px rgba(0,0,0,0.7); }
 
 /* --------------------------------------------------------------------------
    CARTRIDGE INSERTION ANIMATION
