@@ -1,27 +1,23 @@
 /* ==========================================================================
-   Smelt Next — New 3DS XL + Glassmorphic Background System
+   Smelt Next — New 3DS XL + Glassmorphic Background System (Polished)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Share+Tech+Mono&display=swap');
 
 :root {
-  /* Glowing Glassmorphism Background */
   --bg-primary: #0a0b10;
   
-  /* New 3DS XL Shell Colors */
   --console-body: #1c1c1e;
   --console-highlight: #2a2a2d;
   --console-shadow: #111112;
   --bezel-black: #050505;
-  --bezel-grey: #2e2e32;
+  --bezel-grey: #222224;
   
-  /* Button Super Famicom Colors */
-  --btn-a: #e93e43; /* Red */
-  --btn-b: #e4c441; /* Yellow */
-  --btn-x: #3d8cdc; /* Blue */
-  --btn-y: #4ca355; /* Green */
+  --btn-a: #e93e43;
+  --btn-b: #e4c441;
+  --btn-x: #3d8cdc;
+  --btn-y: #4ca355;
   
-  /* Screens */
   --screen-glow: inset 0 0 20px rgba(0,0,0,0.1);
   --screen-dark: #121212;
   --terminal-bg: #0d0f12;
@@ -47,7 +43,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Original Glowing Ambient Background */
 .ambient-background {
   position: fixed; inset: 0; z-index: -1;
   background-image: 
@@ -57,50 +52,41 @@ body {
   background-attachment: fixed;
 }
 
+.hidden { display: none !important; }
+.mono { font-family: var(--font-mono); }
+
 /* ==========================================================================
    New 3DS XL Chassis
    ========================================================================== */
 .new-3ds-xl-chassis {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  width: 900px;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+  display: flex; flex-direction: column; align-items: center;
+  width: 900px; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+  position: relative;
 }
 
 .chassis-top {
   width: 100%;
   background: linear-gradient(135deg, var(--console-highlight), var(--console-body));
   border-radius: 40px 40px 15px 15px;
-  padding: 15px 30px 25px 30px;
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), inset 0 -4px 10px rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
+  padding: 20px 30px 25px 30px;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -4px 10px rgba(0,0,0,0.5);
+  display: flex; justify-content: center; position: relative; z-index: 2;
 }
 
 .top-bezel-inner {
-  background: var(--bezel-black);
-  width: 100%;
-  border-radius: 20px;
-  padding: 25px 50px;
-  position: relative;
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.05);
+  background: var(--bezel-black); width: 100%; border-radius: 20px;
+  padding: 25px 50px; position: relative;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.05);
 }
 
 .chassis-hinge {
-  width: 96%;
-  height: 45px;
+  width: 96%; height: 45px;
   background: linear-gradient(to bottom, #111, #222, #0a0a0a);
-  border-left: 2px solid #000;
-  border-right: 2px solid #000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  border-left: 2px solid #000; border-right: 2px solid #000;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 0 50px;
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
-  z-index: 10;
-  margin: -5px 0; /* Connects top and bottom */
+  z-index: 10; margin: -5px 0;
 }
 
 .chassis-bottom {
@@ -110,174 +96,215 @@ body {
   padding: 25px 30px;
   box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), inset 0 -4px 15px rgba(0,0,0,0.8);
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
+  grid-template-columns: 140px 1fr 140px;
   grid-template-rows: auto auto;
-  gap: 15px;
-  position: relative;
+  gap: 15px; position: relative; z-index: 2;
 }
 
 /* ==========================================================================
    Screens & Layout
    ========================================================================== */
-.screen-wrapper {
-  background: #000;
-  border: 1px solid #222;
-  position: relative;
-}
-
-.top-screen-wrapper {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 6px;
-  overflow: hidden;
-}
+.screen-wrapper { background: #000; border: 1px solid #111; position: relative; }
+.top-screen-wrapper { width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; }
 
 .bottom-bezel-inner {
-  background: var(--bezel-grey);
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.6), 0 1px 1px rgba(255,255,255,0.1);
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(to bottom, #1e1e20, #2a2a2d);
+  padding: 20px; border-radius: 15px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1);
+  grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center;
 }
+.bottom-screen-wrapper { width: 100%; aspect-ratio: 4 / 3; border-radius: 4px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
 
-.bottom-screen-wrapper {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-.screen {
-  width: 100%; height: 100%;
-  position: relative;
-}
+.screen { width: 100%; height: 100%; position: relative; }
 
 .top-screen-content {
   position: absolute; inset: 0; z-index: 2;
   background: linear-gradient(135deg, #1c2b36, #0f161c);
-  padding: 1rem 1.5rem;
-  display: flex; flex-direction: column; gap: 10px;
+  padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 10px;
+  overflow: hidden;
 }
 
 .bottom-screen-content {
   position: absolute; inset: 0; z-index: 2;
-  background: #fdfdfd;
-  color: #222;
-  display: flex; flex-direction: column;
+  background: #fdfdfd; color: #222; display: flex; flex-direction: column;
 }
 
 /* ==========================================================================
-   Hardware Details & Controls
+   Hardware Details (Cameras, Speakers, 3D Slider, Lights)
    ========================================================================== */
 .camera-array { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; }
-.camera-lens { width: 10px; height: 10px; background: #222; border-radius: 50%; box-shadow: inset 0 2px 4px #000; }
-.speaker-holes { position: absolute; top: 50%; transform: translateY(-50%); width: 10px; height: 40px; background: radial-gradient(circle, #000 30%, transparent 30%) 0 0 / 4px 4px; }
-.speaker-holes.left { left: 15px; }
-.speaker-holes.right { right: 15px; }
+.camera-lens { width: 10px; height: 10px; background: radial-gradient(circle at 30% 30%, #555, #000); border-radius: 50%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.9); border: 1px solid #222; }
+.speaker-holes { position: absolute; top: 50%; transform: translateY(-50%); width: 12px; height: 40px; background: radial-gradient(circle, #000 35%, transparent 35%) 0 0 / 4px 4px; opacity: 0.8; }
+.speaker-holes.left { left: 20px; }
+.speaker-holes.right { right: 20px; }
 
-.slider-3d-wrap { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.slider-label { font-size: 0.5rem; color: #555; }
-.slider-track { width: 3px; height: 60px; background: #111; border-radius: 3px; position: relative; }
-.slider-thumb { width: 12px; height: 18px; background: #555; border-radius: 2px; position: absolute; left: -4.5px; top: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.slider-3d-wrap { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.slider-label { font-size: 0.5rem; color: #666; font-weight: bold; }
+.slider-track { width: 4px; height: 60px; background: #111; border-radius: 2px; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.8); }
+.slider-thumb { width: 12px; height: 18px; background: linear-gradient(to bottom, #666, #333); border: 1px solid #111; border-radius: 2px; position: absolute; left: -4px; top: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.8); cursor: pointer; }
 
 .hinge-light { width: 12px; height: 12px; border-radius: 50%; background: #222; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); }
 .hinge-light.orange { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
 .hinge-light.green { background: #00ffaa; box-shadow: 0 0 10px #00ffaa; }
 
-/* D-Pad & Circle Pad */
-.controls-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 40px; }
-.circle-pad { width: 80px; height: 80px; background: #1a1a1c; border-radius: 50%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 1px 1px rgba(255,255,255,0.1); position: relative; display: flex; align-items: center; justify-content: center; }
-.circle-pad-inner { width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #555, #333); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+/* ==========================================================================
+   Physical Buttons (Hyper-Realistic Plastic)
+   ========================================================================== */
+.controls-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 50px; }
+
+/* Circle Pad */
+.circle-pad {
+  width: 80px; height: 80px; background: #242426; border-radius: 50%;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.05);
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.circle-pad-inner {
+  width: 65px; height: 65px; background: radial-gradient(circle at 40% 40%, #777, #444);
+  border-radius: 50%; border: 1px solid #333;
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,0.4), 0 2px 5px rgba(0,0,0,0.6);
+  position: relative; cursor: pointer; transition: transform 0.1s;
+}
+.circle-pad-inner:active { transform: translate(2px, 2px); }
+
+/* D-Pad */
 .d-pad { width: 70px; height: 70px; position: relative; }
-.d-pad-cross { width: 22px; height: 70px; background: #222; position: absolute; left: 24px; top: 0; border-radius: 4px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.5); }
-.d-pad-cross::before { content: ""; width: 70px; height: 22px; background: #222; position: absolute; left: -24px; top: 24px; border-radius: 4px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.5); }
+.d-pad-cross {
+  width: 22px; height: 70px; background: linear-gradient(to right, #333, #444 20%, #444 80%, #333);
+  position: absolute; left: 24px; top: 0; border-radius: 3px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 3px 6px rgba(0,0,0,0.8);
+  cursor: pointer;
+}
+.d-pad-cross::before {
+  content: ""; width: 70px; height: 22px;
+  background: linear-gradient(to bottom, #333, #444 20%, #444 80%, #333);
+  position: absolute; left: -24px; top: 24px; border-radius: 3px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 3px 6px rgba(0,0,0,0.8);
+}
+.d-pad-cross::after {
+  content: ""; width: 14px; height: 14px; background: #222; border-radius: 50%;
+  position: absolute; left: 4px; top: 28px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+  z-index: 2; pointer-events: none;
+}
+.d-pad-cross:active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
 /* C-Stick & ABXY */
-.controls-right { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; }
-.c-stick { width: 25px; height: 25px; background: #777; border-radius: 50%; box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), 0 1px 2px rgba(255,255,255,0.1); margin-left: -40px; margin-top: -30px; }
-
-.abxy-cluster { position: relative; width: 100px; height: 100px; transform: rotate(45deg); }
-.hw-btn {
-  width: 35px; height: 35px; border-radius: 50%; border: none; cursor: pointer;
-  position: absolute; font-family: var(--font-main); font-weight: bold; color: #fff;
-  transform: rotate(-45deg); font-size: 1rem;
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 6px rgba(0,0,0,0.6);
-  transition: all 0.1s;
+.controls-right { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px; }
+.c-stick {
+  width: 28px; height: 28px; background: radial-gradient(circle at 30% 30%, #888, #555);
+  border-radius: 50%; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.5);
+  margin-left: -40px; margin-top: -30px; border: 1px solid #444; cursor: pointer;
 }
-.hw-btn:active { transform: rotate(-45deg) scale(0.95) translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+.c-stick:active { transform: translate(1px, 1px); }
 
-.btn-x { top: 0; left: 0; background: var(--btn-x); }
-.btn-y { top: 0; right: 0; background: var(--btn-y); }
-.btn-a { bottom: 0; left: 0; background: var(--btn-a); }
-.btn-b { bottom: 0; right: 0; background: var(--btn-b); }
+.abxy-cluster { position: relative; width: 110px; height: 110px; transform: rotate(45deg); }
+.hw-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+  position: absolute; font-family: var(--font-main); font-weight: bold; color: #fff;
+  transform: rotate(-45deg); font-size: 1.1rem;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.8);
+  transition: all 0.1s; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.hw-btn:active { transform: rotate(-45deg) translateY(3px); box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.8); }
+
+.btn-x { top: 0; left: 0; background: radial-gradient(circle at 30% 30%, #5fb2f7, var(--btn-x)); }
+.btn-y { top: 0; right: 0; background: radial-gradient(circle at 30% 30%, #6cd777, var(--btn-y)); }
+.btn-a { bottom: 0; left: 0; background: radial-gradient(circle at 30% 30%, #ff6a6a, var(--btn-a)); }
+.btn-b { bottom: 0; right: 0; background: radial-gradient(circle at 30% 30%, #ffde6a, var(--btn-b)); }
 
 /* System Buttons */
-.system-buttons {
-  grid-column: 2; grid-row: 2; display: flex; justify-content: space-evenly; align-items: center; padding: 0 50px;
-}
+.system-buttons { grid-column: 2; grid-row: 2; display: flex; justify-content: space-evenly; align-items: center; padding: 0 50px; }
 .sys-btn {
-  background: var(--console-shadow); color: #888; font-family: var(--font-main); font-size: 0.6rem;
-  border: 1px solid #111; border-radius: 10px; padding: 4px 15px; cursor: pointer;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05); transition: color 0.2s;
+  background: linear-gradient(to bottom, #333, #111); color: #aaa; font-family: var(--font-main); font-size: 0.65rem; font-weight: bold;
+  border: 1px solid #000; border-radius: 12px; padding: 6px 20px; cursor: pointer;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5); transition: all 0.1s;
 }
-.sys-btn:hover { color: #fff; }
-.sys-btn:active { background: #000; }
+.sys-btn:hover { color: #fff; background: linear-gradient(to bottom, #444, #222); }
+.sys-btn:active { transform: translateY(2px); box-shadow: 0 0 2px rgba(0,0,0,0.5); }
 
 /* ==========================================================================
-   Top Screen UI Components (Web App)
+   Top Screen UI Components (Dynamic States & Animation)
    ========================================================================== */
 .hero-banner { display: flex; justify-content: space-between; align-items: center; }
 .brand-container { display: flex; align-items: center; gap: 10px; }
 .brand-logo { font-size: 1.5rem; }
 .hero-title { font-size: 1.5rem; font-weight: bold; }
-.brand-tag { background: #00d2ff; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; vertical-align: middle; }
+.brand-tag { background: #00d2ff; color: #000; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; vertical-align: middle; font-weight: 800;}
 
 .global-stats-hud { display: flex; gap: 20px; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
 .hud-item { display: flex; flex-direction: column; align-items: center; }
-.hud-label { font-size: 0.6rem; text-transform: uppercase; color: #8ba4b5; }
+.hud-label { font-size: 0.6rem; text-transform: uppercase; color: #8ba4b5; font-weight: bold;}
 .hud-value { font-family: var(--font-mono); font-size: 0.9rem; color: #00e676; }
 
+/* Dynamic Views */
+.view-layer {
+  position: absolute; left: 1.5rem; right: 1.5rem; top: 4.5rem; bottom: 1.5rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; opacity: 0; transform: translateY(10px);
+}
+.view-layer.active { pointer-events: auto; opacity: 1; transform: translateY(0); }
+
+/* Cartridge Animation */
+.cartridge-insert-anim {
+  position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 140px; background: #ddd; border: 2px solid #999; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 50; opacity: 0; pointer-events: none;
+}
+.cartridge-insert-anim::before {
+  content: ""; width: 100px; height: 80px; background: #fff; border-radius: 4px; border: 1px solid #ccc; margin-top: 20px;
+}
+.cartridge-insert-anim.animate {
+  animation: insertCartridge 1.5s cubic-bezier(0.17, 0.89, 0.32, 1) forwards;
+}
+
+@keyframes insertCartridge {
+  0% { top: -150px; opacity: 0; transform: translateX(-50%) scale(1.1); }
+  20% { opacity: 1; }
+  60% { top: 30%; transform: translateX(-50%) scale(1); }
+  80% { top: 32%; transform: translateX(-50%) scale(1); } /* The "Click" */
+  100% { top: 32%; opacity: 0; transform: translateX(-50%) scale(0.9); }
+}
+
+/* Dropzone */
 .dropzone-area {
   background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2);
-  border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: background 0.2s;
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; cursor: pointer; transition: background 0.2s; height: 100%;
 }
 .dropzone-area:hover { background: rgba(255,255,255,0.1); }
-.forge-icon { font-size: 2rem; }
-.dropzone-inner h2 { font-size: 1rem; margin: 5px 0 10px; font-weight: 500; }
+.forge-icon { font-size: 3rem; margin-bottom: 10px; }
+.dropzone-inner h2 { font-size: 1.2rem; margin-bottom: 15px; font-weight: 500; }
 
 .btn-frutiger {
-  background: linear-gradient(to bottom, #f8fcfd, #dbeaf1); color: #222; font-weight: bold; font-size: 0.8rem;
-  padding: 6px 15px; border-radius: 15px; border: 1px solid #9fbac7; cursor: pointer;
+  background: linear-gradient(to bottom, #f8fcfd, #dbeaf1); color: #222; font-weight: bold; font-size: 0.9rem;
+  padding: 8px 20px; border-radius: 20px; border: 1px solid #9fbac7; cursor: pointer;
   display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.queue-panel { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+/* Queue Panel */
+.queue-panel { display: flex; flex-direction: column; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); height: 100%; }
 .panel-header { background: rgba(255,255,255,0.05); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .panel-title { font-size: 0.85rem; font-weight: bold; }
-.select-glossy { background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px; font-size: 0.75rem; }
+.select-glossy { background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #444; border-radius: 4px; padding: 4px; font-size: 0.75rem; }
 
 .queue-container { flex: 1; overflow-y: auto; padding: 8px; }
-.queue-empty-state { text-align: center; color: #777; font-size: 0.8rem; padding-top: 1rem; }
-.queue-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; margin-bottom: 6px; }
-.rom-filename { font-size: 0.8rem; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; }
-.badge { font-size: 0.6rem; padding: 2px 4px; border-radius: 4px; background: #333; }
-.mini-progress-bar { height: 4px; background: #222; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.queue-empty-state { text-align: center; color: #777; font-size: 0.8rem; padding-top: 2rem; }
+.queue-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+.rom-title-row { display: flex; justify-content: space-between; margin-bottom: 4px;}
+.rom-filename { font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; font-weight: bold;}
+.badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #333; }
+.rom-sub-row { font-size: 0.75rem; color: #8ba4b5; }
+.mini-progress-bar { height: 4px; background: #222; border-radius: 2px; margin-top: 6px; overflow: hidden; }
 .mini-progress-fill { height: 100%; background: #00e676; width: 0%; }
-.card-actions { display: none; } /* Hidden, actions are mapped to physical buttons! */
 
 /* ==========================================================================
    Bottom Screen UI Components (Terminal)
    ========================================================================== */
 .console-panel { width: 100%; height: 100%; display: flex; flex-direction: column; }
-.console-panel .panel-header { background: #f0f0f0; border-bottom: 1px solid #ccc; color: #222; }
+.console-panel .panel-header { background: #f0f0f0; border-bottom: 1px solid #ccc; color: #222; padding: 10px; }
 .console-terminal {
   flex: 1; background: var(--terminal-bg); color: var(--terminal-text); font-family: var(--font-mono);
-  padding: 10px; font-size: 0.8rem; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px; font-size: 0.85rem; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
 }
 .log-time { color: #555; }
 .badge-info { color: #3b82f6; } .badge-success { color: #10b981; } .badge-warn { color: #f59e0b; } .badge-error { color: #ef4444; }

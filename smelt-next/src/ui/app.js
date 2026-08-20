@@ -91,15 +91,33 @@ class SmeltNextApplication {
   wireEvents() {
     // 1. Files Ingested from Dropzone or File Picker
     this.bus.on('files:ingested', (files) => {
-      for (const file of files) {
-        if (file.name.toLowerCase().includes('seeddb')) {
-          file.arrayBuffer().then((buf) => {
-            this.forgeService.loadSeedDB(buf);
-          });
-        } else {
-          const item = this.queue.addItem(file);
-          this.forgeService.analyzeROM(item);
-        }
+      // Trigger Cartridge Animation & View Transition
+      const anim = document.getElementById('cartridge-anim');
+      const viewDropzone = document.getElementById('view-dropzone');
+      const viewQueue = document.getElementById('view-queue');
+      
+      if (anim && viewDropzone && viewQueue && files.length > 0) {
+        // Start animation
+        anim.classList.add('animate');
+        
+        // After "click" (1.5s), swap views
+        setTimeout(() => {
+          viewDropzone.classList.remove('active');
+          viewQueue.classList.add('active');
+          anim.classList.remove('animate');
+          
+          // Process files after animation finishes
+          for (const file of files) {
+            if (file.name.toLowerCase().includes('seeddb')) {
+              file.arrayBuffer().then((buf) => {
+                this.forgeService.loadSeedDB(buf);
+              });
+            } else {
+              const item = this.queue.addItem(file);
+              this.forgeService.analyzeROM(item);
+            }
+          }
+        }, 1500);
       }
     });
 

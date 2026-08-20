@@ -7,10 +7,9 @@
   <meta name="description" content="Client-side Nintendo 3DS ROM decryptor. 100% private, zero uploads.">
   <meta name="theme-color" content="#1a1c28">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles/main.css?v=9">
+  <link rel="stylesheet" href="styles/main.css?v=10">
 </head>
 <body>
-  <!-- Glowing Glassmorphic Background -->
   <div class="ambient-background"></div>
 
   <div class="new-3ds-xl-chassis">
@@ -20,30 +19,16 @@
     <div class="chassis-top">
       <div class="top-bezel-inner">
         <!-- Hardware Details -->
-        <div class="camera-array">
-          <div class="camera-lens small"></div>
-          <div class="camera-lens small"></div>
-        </div>
-        <div class="speaker-holes left"></div>
-        <div class="speaker-holes right"></div>
-        <div class="slider-3d-wrap">
-          <div class="slider-label">3D</div>
-          <div class="slider-track"><div class="slider-thumb"></div></div>
-          <div class="slider-label off">OFF</div>
-        </div>
+        <div class="camera-array"><div class="camera-lens"></div><div class="camera-lens"></div></div>
+        <div class="speaker-holes left"></div><div class="speaker-holes right"></div>
+        <div class="slider-3d-wrap"><div class="slider-label">3D</div><div class="slider-track"><div class="slider-thumb"></div></div><div class="slider-label off">OFF</div></div>
 
         <!-- Screen Component -->
         <div class="screen-wrapper top-screen-wrapper">
           <div class="screen top-screen">
-            <div class="scanlines"></div>
-            
             <div class="top-screen-content">
-              <!-- Banner & Stats -->
               <header class="hero-banner">
-                <div class="brand-container">
-                  <span class="brand-logo">✨</span>
-                  <h1 class="hero-title">Smelt <span class="brand-tag">NEXT</span></h1>
-                </div>
+                <div class="brand-container"><span class="brand-logo">✨</span><h1 class="hero-title">Smelt <span class="brand-tag">NEXT</span></h1></div>
                 <div class="global-stats-hud">
                   <div class="hud-item"><span class="hud-label">Speed</span><span id="hud-speed" class="hud-value">0.0 MB/s</span></div>
                   <div class="hud-item"><span class="hud-label">ETA</span><span id="hud-eta" class="hud-value">Ready</span></div>
@@ -51,40 +36,44 @@
                 </div>
               </header>
 
-              <!-- Dropzone & Queue (Top Screen for Visual Feedback) -->
-              <section id="dropzone" class="dropzone-area">
-                <div class="dropzone-inner">
-                  <span class="forge-icon">📥</span>
-                  <h2>Insert ROM Cartridges</h2>
-                  <label for="file-input" class="btn-frutiger">
-                    Browse Files
-                    <input type="file" id="file-input" multiple hidden>
-                  </label>
-                </div>
-              </section>
+              <!-- Cartridge Animation Element -->
+              <div id="cartridge-anim" class="cartridge-insert-anim">
+                <div style="font-size:0.6rem; color:#555; margin-top:5px; font-weight:bold;">NTR-005</div>
+              </div>
 
-              <!-- Queue Panel -->
-              <div class="panel-card queue-panel">
-                <div class="panel-header">
-                  <h3 class="panel-title">📦 Queue</h3>
-                  <div style="display: flex; gap: 8px; align-items: center;">
-                    <select id="select-format" class="select-glossy">
-                      <option value="same" selected>Default</option>
-                      <option value="cci">.CCI</option>
-                      <option value="3ds">.3DS</option>
-                    </select>
-                    <label class="checkbox-frutiger" style="font-size: 0.75rem;">
-                      <input type="checkbox" id="check-auto-download" checked> Auto-save
+              <!-- View 1: Dropzone -->
+              <div id="view-dropzone" class="view-layer active">
+                <section id="dropzone" class="dropzone-area">
+                  <div class="dropzone-inner">
+                    <div class="forge-icon">📥</div>
+                    <h2>Insert ROM Cartridges</h2>
+                    <label for="file-input" class="btn-frutiger">
+                      Browse Files
+                      <input type="file" id="file-input" multiple hidden>
                     </label>
                   </div>
-                </div>
-                <div id="queue-list" class="queue-container">
-                  <div id="empty-queue" class="queue-empty-state"><p>Queue Empty</p></div>
-                </div>
-                <div class="panel-footer" style="display: none;">
-                  <!-- We keep the actual action buttons here for JS bindings, but they will be triggered by hardware buttons visually -->
-                  <button id="btn-clear-all">Clear</button>
-                  <button id="btn-forge-all">Forge All</button>
+                </section>
+              </div>
+
+              <!-- View 2: Queue Panel -->
+              <div id="view-queue" class="view-layer">
+                <div class="panel-card queue-panel">
+                  <div class="panel-header">
+                    <h3 class="panel-title">📦 Active Queue</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                      <select id="select-format" class="select-glossy">
+                        <option value="same" selected>Default</option>
+                        <option value="cci">.CCI</option>
+                        <option value="3ds">.3DS</option>
+                      </select>
+                      <label style="font-size: 0.75rem; display:flex; align-items:center; gap:4px;">
+                        <input type="checkbox" id="check-auto-download" checked> Auto-save
+                      </label>
+                    </div>
+                  </div>
+                  <div id="queue-list" class="queue-container">
+                    <div id="empty-queue" class="queue-empty-state"><p>Queue Empty</p></div>
+                  </div>
                 </div>
               </div>
 
@@ -107,37 +96,27 @@
     <!-- ============================================== -->
     <div class="chassis-bottom">
       
-      <!-- Left Controls (Circle Pad, D-Pad) -->
+      <!-- Left Controls -->
       <div class="controls-left">
-        <div class="circle-pad">
-          <div class="circle-pad-inner"></div>
-        </div>
-        <div class="d-pad">
-          <div class="d-pad-cross"></div>
-        </div>
+        <div class="circle-pad"><div class="circle-pad-inner"></div></div>
+        <div class="d-pad"><div class="d-pad-cross"></div></div>
       </div>
 
-      <!-- Bottom Screen (Terminal/Inspector) -->
+      <!-- Bottom Screen -->
       <div class="bottom-bezel-inner">
         <div class="screen-wrapper bottom-screen-wrapper">
           <div class="screen bottom-screen">
-            <div class="scanlines-light"></div>
-            
             <div class="bottom-screen-content">
-              <!-- Terminal Panel -->
               <div class="panel-card console-panel">
-                <div class="panel-header">
-                  <h3 class="panel-title">📟 Terminal Output</h3>
-                </div>
+                <div class="panel-header"><h3 class="panel-title">📟 Terminal Output</h3></div>
                 <div id="console-output" class="console-terminal"></div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      <!-- Right Controls (C-Stick, ABXY) -->
+      <!-- Right Controls -->
       <div class="controls-right">
         <div class="c-stick"></div>
         <div class="abxy-cluster">
@@ -148,10 +127,10 @@
         </div>
       </div>
 
-      <!-- System Buttons (Bottom Edge) -->
+      <!-- System Buttons -->
       <div class="system-buttons">
         <button class="sys-btn" id="btn-hw-select" title="Clear Terminal">SELECT</button>
-        <button class="sys-btn" id="btn-hw-home" title="Inspector / Home">HOME</button>
+        <button class="sys-btn" id="btn-hw-home" title="Back to Insert">HOME</button>
         <button class="sys-btn" id="btn-hw-start" title="Export Log">START</button>
       </div>
 
@@ -161,17 +140,19 @@
   <!-- ROM Inspector Modal -->
   <div id="inspector-modal" class="modal-overlay hidden">
     <div class="modal-dialog frutiger-modal">
-      <button class="modal-close btn-frutiger icon-btn">✕</button>
+      <button class="modal-close">✕</button>
       <div class="inspector-content"></div>
     </div>
   </div>
 
   <!-- Hidden standard UI controls for logic mapping -->
   <div class="hidden-controls" style="display: none;">
-    <button id="btn-clear-console">Clear Console</button>
-    <button id="btn-export-console">Export Console</button>
+    <button id="btn-clear-all"></button>
+    <button id="btn-forge-all"></button>
+    <button id="btn-clear-console"></button>
+    <button id="btn-export-console"></button>
   </div>
 
-  <script type="module" src="src/ui/app.js?v=9"></script>
+  <script type="module" src="src/ui/app.js?v=10"></script>
 </body>
 </html>
