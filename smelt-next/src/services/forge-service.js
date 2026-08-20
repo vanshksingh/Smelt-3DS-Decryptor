@@ -10,6 +10,23 @@ export class ForgeService {
     this.worker = null;
     this.isProcessingBatch = false;
     this.initWorker();
+    this.loadBundledSeedDB();
+  }
+
+  async loadBundledSeedDB() {
+    try {
+      const response = await fetch(new URL('assets/seeddb.bin', window.location.href));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const buffer = await response.arrayBuffer();
+      this.loadSeedDB(buffer);
+    } catch (err) {
+      this.bus.emit('log', {
+        level: LOG_LEVEL.WARN,
+        text: `Bundled seeddb.bin could not be loaded (${err.message}). Seed-crypto titles may fail.`
+      });
+    }
   }
 
   initWorker() {
@@ -17,7 +34,7 @@ export class ForgeService {
       if (this.worker) {
         this.worker.terminate();
       }
-      this.worker = new Worker(new URL('../workers/decrypt.worker.js?v=20260821_02', import.meta.url), { type: 'module' });
+      this.worker = new Worker(new URL('../workers/decrypt.worker.js', import.meta.url), { type: 'module' });
       this.worker.onmessage = (e) => this.handleWorkerMessage(e.data);
       this.worker.onerror = (err) => {
         this.bus.emit('log', { level: LOG_LEVEL.ERROR, text: `Worker thread error: ${err.message}` });
@@ -36,13 +53,25 @@ export class ForgeService {
         break;
 
       case 'ANALYSIS_COMPLETE':
+        if (analysis?.status === 'invalid') {
+          this.queue.updateItem(fileId, {
+            analysis,
+            status: ROM_STATUS.ERROR,
+            errorMessage: analysis.message || 'Invalid ROM container'
+          });
+          this.bus.emit('log', {
+            level: LOG_LEVEL.ERROR,
+            text: `Rejected [${analysis.fileName || 'ROM'}]: ${analysis.message || 'invalid container'}`
+          });
+          break;
+        }
         this.queue.updateItem(fileId, {
           analysis,
           status: ROM_STATUS.READY
         });
         this.bus.emit('log', {
           level: LOG_LEVEL.INFO,
-          text: `Analyzed [${analysis.fileName}]: State = ${analysis.analysisState?.toUpperCase()} (Title ID: ${analysis.titleId || 'Unknown'})`
+          text: `Analyzed [${analysis.fileName}]: ${analysis.analysisState?.toUpperCase()} · ${analysis.titleId || 'Unknown ID'}`
         });
         break;
 
@@ -66,7 +95,7 @@ export class ForgeService {
         const stepsEl = document.getElementById('hud-steps');
         if (stepsEl && percent % 5 === 0) { // update periodically
             const mb = data.processedBytes ? Math.floor(data.processedBytes / (1024 * 1024)) : 0;
-            stepsEl.textContent = mb;
+            stepsEl.textContent = `${mb} MB`;
         }
         
         break;

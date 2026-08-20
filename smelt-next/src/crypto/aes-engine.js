@@ -3,16 +3,11 @@
  */
 
 export class AESEngine {
-  /**
-   * Imports a raw 128-bit key into Web Crypto SubtleCrypto
-   * @param {Uint8Array} keyBytes 16-byte key
-   * @returns {Promise<CryptoKey>}
-   */
   static async importAESCTRKey(keyBytes) {
     if (typeof crypto === 'undefined' || !crypto.subtle) {
       throw new Error('Web Crypto API (crypto.subtle) is not supported in this browser environment.');
     }
-    return await crypto.subtle.importKey(
+    return crypto.subtle.importKey(
       'raw',
       keyBytes,
       { name: 'AES-CTR' },
@@ -22,18 +17,15 @@ export class AESEngine {
   }
 
   /**
-   * Decrypts a chunk of data using Web Crypto AES-CTR
-   * @param {CryptoKey} cryptoKey 
-   * @param {Uint8Array} counter 16-byte IV/Counter
-   * @param {Uint8Array} dataChunk Ciphertext bytes
-   * @returns {Promise<Uint8Array>} Plaintext bytes
+   * Decrypt with AES-CTR. Counter length is 128 so the type byte at CTR[8]
+   * is not incremented (64-bit length would clobber NCCH section type).
    */
   static async decryptChunk(cryptoKey, counter, dataChunk) {
     const decryptedBuffer = await crypto.subtle.decrypt(
       {
         name: 'AES-CTR',
-        counter: counter,
-        length: 64 // 64-bit counter length
+        counter,
+        length: 128
       },
       cryptoKey,
       dataChunk
@@ -42,17 +34,17 @@ export class AESEngine {
   }
 
   /**
-   * Increments a 16-byte Big-Endian counter by a specified number of blocks (16 bytes each)
-   * @param {Uint8Array} counter 
-   * @param {number} blocksToAdd 
+   * Increments a 16-byte big-endian counter by N AES blocks.
    */
   static incrementCounter(counter, blocksToAdd) {
     const updated = new Uint8Array(counter);
-    let carry = blocksToAdd;
-    for (let i = 15; i >= 0 && carry > 0; i--) {
-      const sum = updated[i] + (carry & 0xFF);
-      updated[i] = sum & 0xFF;
-      carry = (carry >>> 8) + (sum >>> 8);
+    if (!blocksToAdd) return updated;
+
+    let carry = BigInt(blocksToAdd);
+    for (let i = 15; i >= 0 && carry > 0n; i--) {
+      const sum = BigInt(updated[i]) + (carry & 0xFFn);
+      updated[i] = Number(sum & 0xFFn);
+      carry = (carry >> 8n) + (sum >> 8n);
     }
     return updated;
   }

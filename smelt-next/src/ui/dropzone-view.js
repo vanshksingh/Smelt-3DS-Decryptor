@@ -18,7 +18,7 @@ export class DropzoneView {
       this.dropzone.addEventListener(name, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dropzone.classList.add('drag-active');
+        this.dropzone.classList.add('drag-over', 'drag-active');
       });
     });
 
@@ -26,7 +26,7 @@ export class DropzoneView {
       this.dropzone.addEventListener(name, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dropzone.classList.remove('drag-active');
+        this.dropzone.classList.remove('drag-over', 'drag-active');
       });
     });
 

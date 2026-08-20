@@ -6,8 +6,8 @@
   <title>Smelt Next — Nintendo 3DS ROM Decryptor</title>
   <meta name="description" content="High-performance, client-side Nintendo 3DS ROM decryptor. 100% private, zero uploads.">
   <meta name="theme-color" content="#181920">
-  <link rel="manifest" href="manifest.json?v=20260821_03">
-  <link rel="stylesheet" href="styles/main.css?v=20260821_03">
+  <link rel="manifest" href="manifest.json?v=20260821_14">
+  <link rel="stylesheet" href="styles/main.css?v=20260821_14">
 </head>
 <body>
   <!-- Ambient Desktop Background -->
@@ -41,18 +41,6 @@
       <section class="chassis-top" aria-label="Top Screen Lid">
         <div class="shell-gloss-edge" aria-hidden="true"></div>
 
-        <!-- Speaker Grills -->
-        <div class="speaker-grill left" aria-hidden="true">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        </div>
-        <div class="speaker-grill right" aria-hidden="true">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        </div>
-
         <!-- Volume Slider -->
         <div class="volume-slider-wrap" aria-hidden="true">
           <div class="slider-icon vol-high"></div>
@@ -78,9 +66,16 @@
             <div class="camera-lens" title="3D Camera Right"></div>
           </div>
 
+          <div class="speaker-holes left-speaker" aria-hidden="true">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+
           <!-- 16:9 Top Screen -->
           <div class="screen-wrapper top-screen-wrapper">
-            <div class="screen top-screen">
+            <div class="screen top-screen" id="screen-top">
               <div class="screen-scanlines" aria-hidden="true"></div>
               <div class="screen-glass-reflection" aria-hidden="true"></div>
 
@@ -181,17 +176,23 @@
                       </div>
                     </div>
 
-                    <div id="queue-list" class="queue-container" role="list">
-                      <div id="empty-queue" class="queue-empty-state">
-                        <p>No ROMs queued — insert a game card or click + Add ROMs.</p>
-                      </div>
+                    <div id="empty-queue" class="queue-empty-state">
+                      <p>No ROMs queued — insert a game card or click + Add ROMs.</p>
                     </div>
+                    <div id="queue-list" class="queue-container" role="list"></div>
                   </div>
                 </div>
 
               </div><!-- /top-screen-content -->
             </div><!-- /top-screen -->
           </div><!-- /top-screen-wrapper -->
+
+          <div class="speaker-holes right-speaker" aria-hidden="true">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
         </div><!-- /top-bezel-inner -->
       </section><!-- /chassis-top -->
 
@@ -230,7 +231,7 @@
         <!-- Bottom Touch Screen & Home Button (on the exact same bezel plateau) -->
         <div class="bottom-bezel-inner">
           <div class="screen-wrapper bottom-screen-wrapper">
-            <div class="screen bottom-screen">
+            <div class="screen bottom-screen" id="screen-bottom">
               <div class="touch-grid-pattern" aria-hidden="true"></div>
 
               <div class="bottom-screen-content">
@@ -266,7 +267,7 @@
           </div>
 
           <!-- Home Button on Bottom Screen Plateau -->
-          <div class="home-button-row">
+          <div class="sys-buttons-row">
             <button class="home-btn" id="btn-hw-home" title="HOME: Toggle View">
               <span class="home-text">HOME</span>
             </button>
@@ -286,15 +287,19 @@
             <button class="hw-btn btn-b" id="btn-hw-b" title="B: Clear Queue"><span class="btn-surface">B</span></button>
           </div>
 
-          <div class="start-select-cluster">
-            <button class="sys-pill-btn" id="btn-hw-start" title="Export Log">START</button>
-            <button class="sys-pill-btn" id="btn-hw-select" title="Clear Console">SELECT</button>
+          <div class="start-select-cluster-new">
+            <button class="sys-pill-btn start-btn" id="btn-hw-start" type="button" title="Export Log">START</button>
+            <button class="sys-pill-btn select-btn" id="btn-hw-select" type="button" title="Clear Console">SELECT</button>
           </div>
         </div>
 
-        <!-- Cartridge Slot Indicator (visual only) -->
         <div class="cartridge-slot-indicator" aria-hidden="true">
           <div class="slot-groove"></div>
+        </div>
+        <div class="bottom-edge-leds">
+          <div class="led-jewel blue" id="led-power" title="Power"></div>
+          <div class="led-jewel orange" id="led-charge" title="Notification"></div>
+          <div class="led-jewel green" id="led-wifi" title="Wireless"></div>
         </div>
 
       </section><!-- /chassis-bottom -->
@@ -317,6 +322,6 @@
     <button id="btn-export-console"></button>
   </div>
 
-  <script type="module" src="src/ui/app.js?v=20260821_03"></script>
+  <script type="module" src="src/ui/app.js?v=20260821_14"></script>
 </body>
 </html>

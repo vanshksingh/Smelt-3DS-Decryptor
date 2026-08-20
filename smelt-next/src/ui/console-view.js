@@ -51,16 +51,17 @@ export class ConsoleView {
 
     if (!this.container) return;
 
+    const safeLevel = ['info', 'success', 'warn', 'error'].includes(level) ? level : 'info';
     const row = document.createElement('div');
-    row.className = `console-line log-${level}`;
+    row.className = `console-line log-${safeLevel}`;
 
     const time = document.createElement('span');
     time.className = 'log-time';
     time.textContent = entry.timestamp;
 
     const badge = document.createElement('span');
-    badge.className = `log-badge badge-${level}`;
-    badge.textContent = level.toUpperCase();
+    badge.className = `log-badge badge-${safeLevel}`;
+    badge.textContent = safeLevel.toUpperCase();
 
     const msg = document.createElement('span');
     msg.className = 'log-msg';
