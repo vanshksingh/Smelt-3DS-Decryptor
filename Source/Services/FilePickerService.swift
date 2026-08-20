@@ -2,21 +2,20 @@ import AppKit
 import UniformTypeIdentifiers
 
 enum FilePickerService {
-    static var romContentTypes: [UTType] {
-        var types: [UTType] = [.folder]
-        for ext in ["3ds", "cia", "cci", "cxi"] {
-            if let type = UTType(filenameExtension: ext) {
-                types.append(type)
-            }
-        }
-        types.append(.data)
-        return types
-    }
-
     static func openFiles(from window: NSWindow? = nil, completion: @escaping ([URL]) -> Void) {
         let panel = makeROMPanel()
-        present(panel, from: window, deferToNextTurn: false) { response in
-            completion(response == .OK ? panel.urls : [])
+        present(panel, from: window) { response in
+            guard response == .OK else {
+                DispatchQueue.main.async { completion([]) }
+                return
+            }
+            let picked = panel.urls.map { url -> URL in
+                _ = url.startAccessingSecurityScopedResource()
+                return ROMImport.normalize(url)
+            }
+            DispatchQueue.main.async {
+                completion(picked)
+            }
         }
     }
 
@@ -33,8 +32,10 @@ enum FilePickerService {
         if let current {
             panel.directoryURL = current
         }
-        present(panel, from: NSApp.keyWindow, deferToNextTurn: true) { response in
-            completion(response == .OK ? panel.url : nil)
+        present(panel, from: NSApp.keyWindow) { response in
+            DispatchQueue.main.async {
+                completion(response == .OK ? panel.url : nil)
+            }
         }
     }
 
@@ -42,8 +43,10 @@ enum FilePickerService {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.plainText]
         panel.nameFieldStringValue = suggestedName
-        present(panel, from: NSApp.keyWindow, deferToNextTurn: false) { response in
-            completion(response == .OK ? panel.url : nil)
+        present(panel, from: NSApp.keyWindow) { response in
+            DispatchQueue.main.async {
+                completion(response == .OK ? panel.url : nil)
+            }
         }
     }
 
@@ -53,36 +56,26 @@ enum FilePickerService {
         panel.canChooseDirectories = true
         panel.canChooseFiles = true
         panel.resolvesAliases = true
-        panel.allowsOtherFileTypes = true
         panel.canCreateDirectories = false
         panel.prompt = "Add to Queue"
         panel.message = "Select 3DS ROM files, CIA packages, or folders containing them"
-        panel.allowedContentTypes = romContentTypes
+        panel.title = "Add ROMs"
+        // Do not filter by UTType here — .3ds/.cia often have no stable type.
+        // AppState validates extensions after the user picks files.
         return panel
     }
 
-    /// Menus must close before a modal panel; button clicks must open immediately.
     private static func present(
         _ panel: NSSavePanel,
         from window: NSWindow?,
-        deferToNextTurn: Bool,
         completion: @escaping (NSApplication.ModalResponse) -> Void
     ) {
         let work = {
             NSApp.activate(ignoringOtherApps: true)
             let host = window ?? NSApp.keyWindow ?? NSApp.windows.first(where: \.isVisible)
-            if let host {
-                WindowInteraction.prepare(host)
-                host.makeKeyAndOrderFront(nil)
-            }
+            host?.makeKeyAndOrderFront(nil)
             completion(panel.runModal())
         }
-        if deferToNextTurn {
-            DispatchQueue.main.async(execute: work)
-        } else if Thread.isMainThread {
-            work()
-        } else {
-            DispatchQueue.main.sync(execute: work)
-        }
+        DispatchQueue.main.async(execute: work)
     }
 }

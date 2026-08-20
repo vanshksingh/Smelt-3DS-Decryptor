@@ -8,9 +8,9 @@ enum DropService {
         let lock = NSLock()
 
         func append(_ url: URL) {
-            guard url.isFileURL else { return }
+            guard url.isFileURL || url.scheme == nil else { return }
             lock.lock()
-            collected.append(url)
+            collected.append(ROMImport.normalize(url))
             lock.unlock()
         }
 
@@ -58,9 +58,16 @@ enum DropService {
     }
 
     private static func url(from item: Any?) -> URL? {
-        if let url = item as? URL { return url }
-        if let data = item as? Data { return URL(dataRepresentation: data, relativeTo: nil) }
-        if let string = item as? String { return URL(fileURLWithPath: string) }
+        if let url = item as? URL { return url.standardizedFileURL }
+        if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
+            return url.standardizedFileURL
+        }
+        if let string = item as? String {
+            if string.hasPrefix("file://"), let url = URL(string: string) {
+                return url.standardizedFileURL
+            }
+            return URL(fileURLWithPath: string).standardizedFileURL
+        }
         return nil
     }
 }

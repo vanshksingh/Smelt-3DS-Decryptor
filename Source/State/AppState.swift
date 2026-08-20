@@ -9,6 +9,13 @@ final class AppState: ObservableObject {
     let settings = Settings()
     let scopedAccess = SecurityScopedAccess()
 
+    private let scanQueue = DispatchQueue(label: "smelt.rom-scan", qos: .userInitiated, attributes: .concurrent)
+    private let scanLimiter = DispatchSemaphore(value: 3)
+    private var scanTokens: [UUID: UInt64] = [:]
+
+    private static let maxROMsFromFolder = 2_000
+    private static let scanTimeout: TimeInterval = 8
+
     init() {
         if let folder = settings.folder {
             scopedAccess.retain(folder)
@@ -32,47 +39,93 @@ final class AppState: ObservableObject {
     }
 
     var pendingCount: Int {
-        files.filter { $0.state == .queued || $0.state == .failed }.count
+        files.filter { $0.state == .queued || $0.state == .failed || $0.state == .scanning }.count
     }
 
     func add(_ urls: [URL]) {
         guard !urls.isEmpty else { return }
-        let retained = scopedAccess.retain(urls)
+        log("Importing \(urls.count) selected item(s)...")
 
         DispatchQueue.global(qos: .userInitiated).async {
             var prepared: [ROM] = []
+            var skipped: [String] = []
 
-            for url in retained {
+            for url in urls {
+                let normalized = ROMImport.normalize(url)
+
                 var isDirectory: ObjCBool = false
-                guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) else { continue }
+                let exists = FileManager.default.fileExists(atPath: normalized.path, isDirectory: &isDirectory)
+                    || (try? normalized.checkResourceIsReachable()) == true
 
-                if isDirectory.boolValue {
+                guard exists else {
+                    skipped.append("\(normalized.lastPathComponent) (\(ROMImport.Failure.notFound.description))")
+                    continue
+                }
+
+                let isFolder = isDirectory.boolValue
+                    || (try? normalized.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
+
+                if isFolder {
                     guard let enumerator = FileManager.default.enumerator(
-                        at: url,
-                        includingPropertiesForKeys: [.isRegularFileKey],
-                        options: [.skipsHiddenFiles]
-                    ) else { continue }
+                        at: normalized,
+                        includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey, .isReadableKey],
+                        options: [.skipsHiddenFiles, .skipsPackageDescendants]
+                    ) else {
+                        skipped.append("\(normalized.lastPathComponent) (folder unreadable)")
+                        continue
+                    }
 
+                    var truncated = false
+                    var foundInFolder = 0
                     for case let child as URL in enumerator {
-                        if let rom = self.prepareROM(child) {
+                        if prepared.count >= Self.maxROMsFromFolder {
+                            truncated = true
+                            enumerator.skipDescendants()
+                            break
+                        }
+                        guard ROMImport.isSupported(child) else { continue }
+                        switch self.makeROM(from: child) {
+                        case .success(let rom):
                             prepared.append(rom)
+                            foundInFolder += 1
+                        case .failure(let reason):
+                            skipped.append("\(child.lastPathComponent) (\(reason.description))")
                         }
                     }
-                } else if let rom = self.prepareROM(url) {
+                    if foundInFolder == 0, !skipped.contains(where: { $0.hasPrefix(normalized.lastPathComponent) }) {
+                        skipped.append("\(normalized.lastPathComponent) (no ROM files inside)")
+                    }
+                    if truncated {
+                        DispatchQueue.main.async {
+                            self.log("Stopped after \(Self.maxROMsFromFolder) ROMs in \(normalized.lastPathComponent). Add the rest separately.")
+                        }
+                    }
+                    continue
+                }
+
+                switch self.makeROM(from: normalized) {
+                case .success(let rom):
                     prepared.append(rom)
+                case .failure(let reason):
+                    skipped.append("\(normalized.lastPathComponent) (\(reason.description))")
                 }
             }
 
             DispatchQueue.main.async {
-                let newcomers = prepared.filter { candidate in
-                    !self.files.contains(where: { $0.url == candidate.url })
+                let existingPaths = Set(self.files.map(\.url.path))
+                let newcomers = prepared.filter { !existingPaths.contains($0.url.path) }
+
+                if !skipped.isEmpty {
+                    self.log("Skipped: \(skipped.joined(separator: ", "))")
                 }
 
                 guard !newcomers.isEmpty else {
                     if prepared.isEmpty {
-                        self.log("No .3ds, .cia, .cci, or .cxi files found in that selection.")
-                        self.settings.showConsole = true
+                        self.log("No .3ds, .cia, .cci, or .cxi files were found in that selection.")
+                    } else {
+                        self.log("Those ROMs are already in the queue.")
                     }
+                    self.settings.showConsole = true
                     return
                 }
 
@@ -86,47 +139,113 @@ final class AppState: ObservableObject {
         }
     }
 
-    private func prepareROM(_ url: URL) -> ROM? {
-        let retained = scopedAccess.retain(url)
-        let ext = retained.pathExtension.lowercased()
-        guard ["3ds", "cia", "cci", "cxi"].contains(ext) else { return nil }
-
-        let bytes = (try? FileManager.default.attributesOfItem(atPath: retained.path)[.size] as? Int64) ?? 0
-        let size = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
-        var rom = ROM(url: retained, name: retained.lastPathComponent, ext: ext.uppercased(), size: size)
-        if ext == "cia" {
-            rom.analysis = .cia
-            rom.state = .queued
+    private func makeROM(from url: URL) -> Result<ROM, ROMImport.Failure> {
+        switch ROMImport.validateFile(url) {
+        case .failure(let failure):
+            return .failure(failure)
+        case .success(let (file, bytes)):
+            let retained = scopedAccess.retain(file)
+            let ext = retained.pathExtension.uppercased()
+            let size = ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+            var rom = ROM(url: retained, name: retained.lastPathComponent, ext: ext, size: size)
+            if ext.lowercased() == "cia" {
+                rom.analysis = .cia
+            }
+            return .success(rom)
         }
-        return rom
     }
 
     func scan(romID: UUID) {
+        guard let rom = files.first(where: { $0.id == romID }) else { return }
+        let token = (scanTokens[romID] ?? 0) + 1
+        scanTokens[romID] = token
         update(id: romID) { $0.state = .scanning }
-        guard let url = files.first(where: { $0.id == romID })?.url else { return }
 
-        DispatchQueue.global(qos: .utility).async {
-            let analysis = ROMAnalyzer.analyze(url)
-            let metadata = ROMAnalyzer.extractMetadata(url)
+        let url = rom.url
+        let isCIA = rom.ext.lowercased() == "cia"
+
+        scanQueue.async {
+            self.scanLimiter.wait()
+
+            let box = ScanBox(analysis: isCIA ? .cia : .decrypt)
+            let group = DispatchGroup()
+            group.enter()
+            DispatchQueue.global(qos: .userInitiated).async {
+                if !isCIA {
+                    box.analysis = ROMAnalyzer.analyze(url)
+                }
+                let metadata = ROMAnalyzer.extractMetadata(url)
+                box.titleID = metadata.titleID
+                box.productCode = metadata.productCode
+                group.leave()
+            }
+
+            let timedOut = group.wait(timeout: .now() + Self.scanTimeout) == .timedOut
+            self.scanLimiter.signal()
+
+            let analysis = timedOut ? (isCIA ? Analysis.cia : .decrypt) : box.analysis
+            let titleID = timedOut ? nil : box.titleID
+            let productCode = timedOut ? nil : box.productCode
 
             DispatchQueue.main.async {
-                self.update(id: romID) { rom in
-                    rom.analysis = analysis
-                    if let titleID = metadata.titleID { rom.titleID = titleID }
-                    if let productCode = metadata.productCode { rom.productCode = productCode }
-                    if analysis == .clean {
-                        rom.state = .done
-                        rom.note = "Already fully decrypted"
-                    } else {
-                        rom.state = .queued
-                    }
-                }
-                self.badge()
+                guard self.scanTokens[romID] == token else { return }
+                self.scanTokens[romID] = nil
+                self.applyScan(
+                    romID: romID,
+                    analysis: analysis,
+                    titleID: titleID,
+                    productCode: productCode,
+                    timedOut: timedOut
+                )
+            }
+        }
+    }
+
+    private func applyScan(
+        romID: UUID,
+        analysis: Analysis,
+        titleID: String?,
+        productCode: String?,
+        timedOut: Bool
+    ) {
+        update(id: romID) { rom in
+            rom.analysis = analysis
+            if let titleID { rom.titleID = titleID }
+            if let productCode { rom.productCode = productCode }
+            if timedOut {
+                rom.state = .queued
+                rom.note = "Header scan timed out; queued for processing"
+            } else if analysis == .clean {
+                rom.state = .done
+                rom.note = "Already fully decrypted"
+            } else if analysis == .invalid {
+                rom.state = .queued
+                rom.note = "Could not read a valid NCCH header"
+            } else {
+                rom.state = .queued
+            }
+        }
+        if timedOut, let name = files.first(where: { $0.id == romID })?.name {
+            log("Header scan timed out for \(name); queued anyway.")
+        }
+        badge()
+    }
+
+    private func finalizeIncompleteScans() {
+        for index in files.indices where files[index].state == .scanning {
+            scanTokens[files[index].id] = nil
+            if files[index].analysis == .unknown {
+                files[index].analysis = files[index].ext.lowercased() == "cia" ? .cia : .decrypt
+            }
+            files[index].state = .queued
+            if files[index].note.isEmpty {
+                files[index].note = "Scan skipped; queued for processing"
             }
         }
     }
 
     func remove(_ rom: ROM) {
+        scanTokens[rom.id] = nil
         files.removeAll { $0.id == rom.id }
         scopedAccess.release(rom.url)
         badge()
@@ -134,6 +253,7 @@ final class AppState: ObservableObject {
 
     func clearAll() {
         guard !busy else { return }
+        scanTokens.removeAll()
         files.removeAll()
         scopedAccess.releaseAll()
         badge()
@@ -162,14 +282,20 @@ final class AppState: ObservableObject {
     }
 
     func requeueIfNeeded(for format: OutputFormat) {
-        for index in files.indices {
-            let expected = files[index].expectedOutputExt(globalFormat: format)
-            let current = files[index].outputURL?.pathExtension.lowercased() ?? files[index].ext.lowercased()
+        var copy = files
+        var changed = false
+        for index in copy.indices {
+            let expected = copy[index].expectedOutputExt(globalFormat: format)
+            let current = copy[index].outputURL?.pathExtension.lowercased() ?? copy[index].ext.lowercased()
             if current != expected.lowercased() {
-                files[index].state = .queued
-                files[index].note = ""
-                files[index].progress = 0
+                copy[index].state = .queued
+                copy[index].note = ""
+                copy[index].progress = 0
+                changed = true
             }
+        }
+        if changed {
+            files = copy
         }
         badge()
     }
@@ -194,6 +320,7 @@ final class AppState: ObservableObject {
 
     func run() {
         guard !busy else { return }
+        finalizeIncompleteScans()
         let pending = files.filter { $0.state == .queued || $0.state == .failed }
         guard !pending.isEmpty else { return }
 
@@ -339,5 +466,31 @@ final class AppState: ObservableObject {
         var copy = files[index]
         mutate(&copy)
         files[index] = copy
+    }
+}
+
+private final class ScanBox {
+    private let lock = NSLock()
+    private var _analysis: Analysis
+    private var _titleID: String?
+    private var _productCode: String?
+
+    init(analysis: Analysis) {
+        self._analysis = analysis
+    }
+
+    var analysis: Analysis {
+        get { lock.lock(); defer { lock.unlock() }; return _analysis }
+        set { lock.lock(); _analysis = newValue; lock.unlock() }
+    }
+
+    var titleID: String? {
+        get { lock.lock(); defer { lock.unlock() }; return _titleID }
+        set { lock.lock(); _titleID = newValue; lock.unlock() }
+    }
+
+    var productCode: String? {
+        get { lock.lock(); defer { lock.unlock() }; return _productCode }
+        set { lock.lock(); _productCode = newValue; lock.unlock() }
     }
 }

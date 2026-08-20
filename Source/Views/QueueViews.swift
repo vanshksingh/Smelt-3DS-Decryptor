@@ -56,7 +56,7 @@ struct DropZone: View {
                         .multilineTextAlignment(.center)
                 }
 
-                BrowseFilesButton { st.add($0) }
+                BrowseFilesButton()
                     .fixedSize()
                     .padding(.top, 8)
             }
@@ -246,7 +246,7 @@ struct ROMRow: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(palette.textSecondary)
                         .frame(width: 80, alignment: .leading)
-                    Text(r.titleID ?? "Unknown (Scanning...)")
+                    Text(r.titleID ?? (r.state == .scanning ? "Scanning…" : "Unavailable"))
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(r.titleID != nil ? Palette.blue : palette.textFaint)
                 }
@@ -255,7 +255,7 @@ struct ROMRow: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(palette.textSecondary)
                         .frame(width: 80, alignment: .leading)
-                    Text(r.productCode ?? "Unknown (Scanning...)")
+                    Text(r.productCode ?? (r.state == .scanning ? "Scanning…" : "Unavailable"))
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(r.productCode != nil ? Palette.blue : palette.textFaint)
                 }
@@ -305,7 +305,6 @@ struct MainContentView: View {
                     .padding(20)
                 }
                 .frame(maxHeight: .infinity)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: st.files.map(\.id))
 
                 HStack(spacing: 12) {
                     HStack(spacing: 8) {
@@ -317,25 +316,25 @@ struct MainContentView: View {
                             .foregroundColor(palette.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
-
-                    BrowseFilesButton { st.add($0) }
-                        .fixedSize()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(targeted ? Palette.blue.opacity(0.15) : palette.dropFill)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(targeted ? Palette.blue : palette.dropStroke, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
-                        )
-                )
-                .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
-                    DropService.collect(providers) { urls in
-                        st.add(urls)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(targeted ? Palette.blue.opacity(0.15) : palette.dropFill)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(targeted ? Palette.blue : palette.dropStroke, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
+                            )
+                    )
+                    .onDrop(of: [.fileURL, .url], isTargeted: $targeted) { providers in
+                        DropService.collect(providers) { urls in
+                            st.add(urls)
+                        }
+                        return true
                     }
-                    return true
+
+                    BrowseFilesButton()
+                        .fixedSize()
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 16)
@@ -344,6 +343,7 @@ struct MainContentView: View {
             ConsoleView(st: st)
                 .frame(height: st.settings.showConsole ? 180 : 0)
                 .clipped()
+                .allowsHitTesting(st.settings.showConsole)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

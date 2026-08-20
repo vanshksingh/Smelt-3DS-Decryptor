@@ -16,7 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             ToolchainService.prepare()
         }
         NSApp.activate(ignoringOtherApps: true)
-        NSApp.windows.forEach { WindowInteraction.prepare($0, stealFirstResponder: true) }
+        NSApp.windows.forEach { WindowInteraction.prepare($0, stealFirstResponder: false) }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
