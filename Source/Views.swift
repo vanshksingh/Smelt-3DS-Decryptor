@@ -409,8 +409,13 @@ struct DropZone: View {
                         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.2), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
+                .contentShape(Rectangle())
                 .padding(.top, 10)
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            browse()
         }
         .onDrop(of: [.fileURL, .url], isTargeted: $tgt) { providers in
             FilePickerHelper.extractDropURLs(from: providers) { urls in
@@ -768,6 +773,7 @@ struct MainContentView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .contentShape(Rectangle())
                 .padding(.horizontal, 24)
                 .padding(.bottom, 20)
             }
@@ -907,7 +913,15 @@ struct LicenseView: View {
                 .buttonStyle(.plain)
                 
                 Button(action: {
-                    isPresented = false
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        isPresented = false
+                    }
+                    DispatchQueue.main.async {
+                        if let window = NSApplication.shared.windows.first {
+                            window.makeKeyAndOrderFront(nil)
+                            window.makeFirstResponder(window.contentView)
+                        }
+                    }
                 }) {
                     Text("Agree & Open")
                         .font(.system(size: 12, weight: .bold))
@@ -923,29 +937,55 @@ struct LicenseView: View {
         }
         .frame(width: 600, height: 480)
         .background(BG)
-        .preferredColorScheme(.dark)
+        .cornerRadius(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(BRD, lineWidth: 1))
+        .shadow(color: .black.opacity(0.7), radius: 24, y: 8)
     }
 }
 
 // MARK: - Root
 struct ContentView: View {
     @StateObject private var st = AppState()
-    @State private var showLicense = true
+    @AppStorage("hasAcceptedEULA_v1") private var hasAcceptedEULA = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            HeaderView(st: st, settings: st.settings)
-            MainContentView(st: st, settings: st.settings)
-            StatusBarView(st: st)
-        }
-        .frame(minWidth: 840, minHeight: 560)
-        .background(BG.ignoresSafeArea())
-        .preferredColorScheme(.dark)
-        .sheet(isPresented: $showLicense) {
-            LicenseView(isPresented: $showLicense)
-                .interactiveDismissDisabled()
+        ZStack {
+            VStack(spacing: 0) {
+                HeaderView(st: st, settings: st.settings)
+                MainContentView(st: st, settings: st.settings)
+                StatusBarView(st: st)
+            }
+            .frame(minWidth: 840, minHeight: 560)
+            .background(BG.ignoresSafeArea())
+            .preferredColorScheme(.dark)
+            
+            // In-window modal overlay avoids AppKit window responder / sheet bugs
+            if !hasAcceptedEULA {
+                Color.black.opacity(0.7)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
+                LicenseView(isPresented: Binding(
+                    get: { !hasAcceptedEULA },
+                    set: { accepted in
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            hasAcceptedEULA = !accepted
+                        }
+                    }
+                ))
+                .transition(.scale(scale: 0.95).combined(with: .opacity))
+                .zIndex(100)
+            }
         }
         .onAppear {
+            DispatchQueue.main.async {
+                NSApp.activate(ignoringOtherApps: true)
+                if let window = NSApplication.shared.windows.first {
+                    window.makeKeyAndOrderFront(nil)
+                    window.makeFirstResponder(window.contentView)
+                }
+            }
+            
             DispatchQueue.global(qos: .background).async {
                 let bundlePath = Bundle.main.bundlePath
                 
@@ -976,3 +1016,4 @@ struct ContentView: View {
             .windowToolbarStyle(.unifiedCompact)
     }
 }
+
