@@ -125,7 +125,7 @@ export class QueueView {
       if (item.analysis?.analysisState === 'clean') {
         stateBadge = '<span class="badge badge-clean">Clean</span>';
       } else if (item.analysis?.analysisState === 'patch') {
-        stateBadge = '<span class="badge badge-patch">1ms Patch</span>';
+        stateBadge = '<span class="badge badge-patch">NoCrypto Flag</span>';
       } else if (item.analysis?.analysisState === 'cia') {
         stateBadge = '<span class="badge badge-decrypt">CIA Archive</span>';
       } else {

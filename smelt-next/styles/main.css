@@ -8,58 +8,58 @@
    THEME DESIGN TOKENS
    ========================================== */
 :root {
-  /* Canvas Background & Dots — Cool Funky Nintendo Palette */
-  --bg-color: #ebf1f6;
-  --dot-color: #cbd5e1;
+  /* Canvas Background & Dots — Solarized Light Harmony */
+  --bg-color: #eee8d5;
+  --dot-color: #dfd7c2;
   
   /* Surface Cards */
-  --card-bg: #ffffff;
-  --deck-top-bg: #ffffff;
-  --deck-bottom-bg: #f8fafc;
-  --panel-bg: #f1f5f9;
-  --card-border: rgba(0, 0, 0, 0.08);
-  --border-light: #e2e8f0;
-  --border-subtle: #f1f5f9;
-  --card-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --card-bg: #fdf6e3;
+  --deck-top-bg: #fdf6e3;
+  --deck-bottom-bg: #f7f0dc;
+  --panel-bg: #eee8d5;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --border-light: #e2d9c2;
+  --border-subtle: #eee8d5;
+  --card-shadow: 0 20px 45px -10px rgba(88, 110, 117, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
 
   /* Typography */
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --text-main: #4a5c63;
+  --text-muted: #657b83;
+  --text-light: #93a1a1;
   --font-sans: 'Ubuntu', system-ui, -apple-system, sans-serif;
   --font-mono: 'Ubuntu Mono', 'JetBrains Mono', monospace;
 
   /* Cohesive Nintendo Harmony (Electric Indigo CTA, Lavender Identity, Emerald Status) */
   --accent-primary: #6366f1; /* Deep Electric Indigo */
   --accent-hover: #4f46e5;
-  --accent-subtle: #eef2ff;
+  --accent-subtle: #e5e9f4;
   --accent-glow: rgba(99, 102, 241, 0.25);
-  --accent-blue: #0284c7; /* 3DS Sky Blue */
-  --accent-green: #10b981; /* StreetPass Green */
-  --accent-lavender: #7c3aed; /* Anvil Lavender */
-  --accent-gold: #f59e0b; /* Mario Star Gold */
+  --accent-blue: #268bd2; /* Solarized Blue */
+  --accent-green: #859900; /* Solarized Green */
+  --accent-lavender: #6c71c4; /* Solarized Violet */
+  --accent-gold: #b58900; /* Solarized Yellow */
 
   /* 3DS Cartridge Colors */
-  --cart-body-bg: #e2e8f0;
-  --cart-border: #94a3b8;
-  --cart-inner: #f1f5f9;
+  --cart-body-bg: #e2d9c2;
+  --cart-border: #93a1a1;
+  --cart-inner: #eee8d5;
 
   /* Terminal Theme (Clean Console Light) */
-  --terminal-bg: #ffffff;
-  --terminal-border: #e2e8f0;
-  --terminal-text: #1e293b;
-  --terminal-hud-bg: #f8fafc;
-  --terminal-time: #64748b;
-  --badge-info-bg: #e0f2fe;
-  --badge-info-text: #0369a1;
-  --badge-success-bg: #dcfce7;
-  --badge-success-text: #15803d;
-  --badge-warn-bg: #fef3c7;
-  --badge-warn-text: #b45309;
-  --badge-error-bg: #fee2e2;
-  --badge-error-text: #b91c1c;
-  --log-success-text: #16a34a;
-  --log-error-text: #dc2626;
+  --terminal-bg: #fdf6e3;
+  --terminal-border: #e2d9c2;
+  --terminal-text: #586e75;
+  --terminal-hud-bg: #f7f0dc;
+  --terminal-time: #93a1a1;
+  --badge-info-bg: #e5e9f4;
+  --badge-info-text: #268bd2;
+  --badge-success-bg: #e6edd1;
+  --badge-success-text: #687900;
+  --badge-warn-bg: #f5eed3;
+  --badge-warn-text: #8a6a00;
+  --badge-error-bg: #f4dbdb;
+  --badge-error-text: #dc322f;
+  --log-success-text: #859900;
+  --log-error-text: #dc322f;
 
   /* Geometry */
   --radius-xl: 28px;
@@ -118,7 +118,32 @@
 }
 
 /* ==========================================
-   BASE & RESET
+   UNIVERSAL SCROLLBAR STYLING
+   ========================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ==========================================
+   COMPONENT STYLES
    ========================================== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -676,8 +701,7 @@ svg {
   margin-bottom: 0.65rem;
 }
 
-.queue-list::-webkit-scrollbar { width: 5px; }
-.queue-list::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
 
 /* Dynamic Queue Card */
 .queue-card {
@@ -1125,8 +1149,7 @@ svg {
   padding-right: 6px;
 }
 
-.soft-terminal-screen::-webkit-scrollbar { width: 5px; }
-.soft-terminal-screen::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
 
 .console-line {
   display: flex;
@@ -1246,6 +1269,8 @@ svg {
   font-size: 0.72rem;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
+  display: inline-flex;
+  width: fit-content;
   align-self: flex-start;
 }
 
@@ -1297,10 +1322,18 @@ svg {
   display: flex;
   justify-content: space-between;
   font-size: 0.78rem;
+  gap: 16px;
 }
 
-.prop-label { color: var(--text-muted); }
-.prop-value { font-weight: 700; font-family: var(--font-mono); }
+.prop-label { color: var(--text-muted); flex-shrink: 0; }
+.prop-value { font-weight: 700; font-family: var(--font-mono); text-align: right; word-break: break-word; }
+
+.prop-value.explanation {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--accent-blue);
+  line-height: 1.4;
+}
 
 .partition-grid {
   display: flex;
@@ -1724,12 +1757,15 @@ svg {
   color: var(--text-secondary);
 }
 
+
+
 .eula-intro {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--text-main);
-  margin-bottom: 16px;
-  line-height: 1.4;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  text-align: justify;
 }
 
 .eula-section {
@@ -1737,17 +1773,20 @@ svg {
 }
 
 .eula-section h3 {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--blue-400);
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .eula-section p {
-  font-size: 0.8rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
   margin: 0;
+  text-align: justify;
 }
 
 .eula-divider {

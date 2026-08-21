@@ -128,8 +128,8 @@ class SmeltNextApplication {
     });
 
     // 4. Download Request
-    this.bus.on('request:download', ({ blob, filename }) => {
-      this.downloadService.downloadBlob(blob, filename);
+    this.bus.on('request:download', ({ blob, filename, userInitiated }) => {
+      this.downloadService.downloadBlob(blob, filename, userInitiated);
     });
 
     // 4b. SeedDB Upload Listener

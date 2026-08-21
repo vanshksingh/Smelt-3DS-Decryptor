@@ -96,6 +96,6 @@ export class ConsoleView {
   exportLogs() {
     const text = this.logs.map(l => `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.text}`).join('\n');
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    this.bus.emit('request:download', { blob, filename: `smelt_logs_${Date.now()}.txt` });
+    this.bus.emit('request:download', { blob, filename: `smelt_logs_${Date.now()}.txt`, userInitiated: true });
   }
 }
