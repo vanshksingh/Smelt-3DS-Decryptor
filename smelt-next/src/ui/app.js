@@ -75,9 +75,9 @@ class SmeltNextApplication {
     this.bus.on('files:ingested', (files) => {
       if (!files || files.length === 0) return;
 
-      const anim = document.getElementById('cartridge-anim');
       const viewDropzone = document.getElementById('view-dropzone');
       const viewQueue = document.getElementById('view-queue');
+      const cartIcon = document.querySelector('.cartridge-mockup-icon');
       const isAlreadyInQueue = viewQueue?.classList.contains('active');
 
       const processIngestedFiles = () => {
@@ -94,26 +94,24 @@ class SmeltNextApplication {
       };
 
       if (isAlreadyInQueue) {
-        // In Queue mode: add files instantly without cartridge animation
+        // In Queue mode: add files instantly
         this.bus.emit('log', { level: LOG_LEVEL.INFO, text: `Queued ${files.length} ROM file(s).` });
         processIngestedFiles();
-      } else if (anim && viewDropzone && viewQueue) {
-        // In Dropzone mode: trigger realistic cartridge insertion animation
-        anim.classList.remove('animate');
-        void anim.offsetWidth; // Force reflow
-        anim.classList.add('animate');
+      } else if (viewDropzone && viewQueue) {
+        // In Dropzone mode: trigger snappy 3DS cartridge "click-in" tactile micro-animation
+        if (cartIcon) {
+          cartIcon.classList.add('cartridge-inserting');
+        }
 
-        // Mid-animation (~1.75s) swap views
+        // Snappy transition (~350ms) to queue view
         setTimeout(() => {
+          if (cartIcon) {
+            cartIcon.classList.remove('cartridge-inserting');
+          }
           viewDropzone.classList.remove('active');
           viewQueue.classList.add('active');
-        }, 1750);
-
-        // After animation completes (2.7s), process files
-        setTimeout(() => {
-          anim.classList.remove('animate');
           processIngestedFiles();
-        }, 2700);
+        }, 350);
       } else {
         processIngestedFiles();
       }
@@ -134,7 +132,31 @@ class SmeltNextApplication {
       this.downloadService.downloadBlob(blob, filename);
     });
 
-    // 5. Automatic Download upon forge completion if enabled
+    // 4b. SeedDB Upload Listener
+    const seeddbInput = document.getElementById('seeddb-file-input');
+    if (seeddbInput) {
+      seeddbInput.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          try {
+            const buf = await file.arrayBuffer();
+            const count = this.forgeService.loadSeedDB(buf);
+            this.bus.emit('log', {
+              level: LOG_LEVEL.SUCCESS,
+              text: `SeedDB updated! Loaded ${count || 'custom'} title seeds from ${file.name}.`
+            });
+          } catch (err) {
+            this.bus.emit('log', {
+              level: LOG_LEVEL.ERROR,
+              text: `Failed to load ${file.name}: ${err.message}`
+            });
+          }
+          seeddbInput.value = '';
+        }
+      });
+    }
+
+    // 5. Automatic Download upon smelt completion if enabled
     this.bus.on('forge:item-completed', ({ resultBlob, finalFilename }) => {
       const autoDownloadCheck = document.getElementById('check-auto-download');
       if (autoDownloadCheck && autoDownloadCheck.checked && resultBlob && finalFilename) {
@@ -155,7 +177,7 @@ class SmeltNextApplication {
     const threadsEl = document.getElementById('hud-threads');
     if (threadsEl) {
       const cores = navigator.hardwareConcurrency || 4;
-      threadsEl.textContent = `${cores}-Core`;
+      threadsEl.textContent = cores;
     }
 
     // 7. Eject & View Toggle
@@ -182,10 +204,10 @@ class SmeltNextApplication {
     document.getElementById('btn-eject-top')?.addEventListener('click', toggleToDropzone);
 
     // 8. Hardware & Touch Button Bindings
-    // A Button / Touch Forge
+    // A Button / Touch Smelt
     const handleForgeAll = () => {
       document.getElementById('btn-forge-all')?.click();
-      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'A Button pressed: Triggered Forge All.' });
+      this.bus.emit('log', { level: LOG_LEVEL.INFO, text: 'A Button pressed: Triggered Smelt All.' });
     };
     document.getElementById('btn-hw-a')?.addEventListener('click', handleForgeAll);
     document.getElementById('touch-btn-forge')?.addEventListener('click', handleForgeAll);

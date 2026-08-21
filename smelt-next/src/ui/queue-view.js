@@ -116,7 +116,7 @@ export class QueueView {
     if (item.status === ROM_STATUS.ANALYZING) {
       stateBadge = '<span class="badge badge-analyzing">Analyzing...</span>';
     } else if (item.status === ROM_STATUS.FORGING) {
-      stateBadge = `<span class="badge badge-forging">Forging ${item.progress}%</span>`;
+      stateBadge = `<span class="badge badge-forging">Smelting ${item.progress}%</span>`;
     } else if (item.status === ROM_STATUS.COMPLETED) {
       stateBadge = '<span class="badge badge-done">Ready</span>';
     } else if (item.status === ROM_STATUS.ERROR) {
@@ -151,13 +151,29 @@ export class QueueView {
           </div>
         </div>
         <div class="card-actions">
-          <button class="btn-action btn-inspect" title="Inspect ROM details">i</button>
+          <button class="btn-action btn-inspect" title="Inspect ROM details" aria-label="Inspect ROM">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </button>
           ${item.status === ROM_STATUS.COMPLETED ? `
-            <button class="btn-action btn-download" title="Download decrypted ROM">DL</button>
+            <button class="btn-action btn-download" title="Download decrypted ROM" aria-label="Download ROM">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+            </button>
           ` : `
-            <button class="btn-action btn-run btn-single-forge" title="Forge this ROM">Run</button>
+            <button class="btn-action btn-run btn-single-forge" title="Smelt this ROM" aria-label="Smelt this ROM">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </button>
           `}
-          <button class="btn-action btn-remove" title="Remove">×</button>
+          <button class="btn-action btn-remove" title="Remove ROM" aria-label="Remove ROM">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div class="card-progress-zone">

@@ -2,132 +2,492 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smelt Next — Nintendo 3DS ROM Decryptor</title>
-  <meta name="description" content="High-performance, client-side Nintendo 3DS ROM decryptor. 100% private, zero uploads.">
-  <meta name="theme-color" content="#3a3d44">
-  <link rel="manifest" href="manifest.json?v=20260821_19">
-  <link rel="stylesheet" href="styles/main.css?v=20260821_19">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smelt Next — In-Browser 3DS ROM Smelter</title>
+  <link rel="icon" type="image/png" href="assets/app-icon.png">
+  <link rel="manifest" href="manifest.json?v=20260821_24">
+  <link rel="stylesheet" href="styles/main.css?v=20260821_24">
+  <script>
+    // Theme Initializer to prevent flash of wrong theme
+    (function() {
+      const savedTheme = localStorage.getItem('smelt-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
-  <!-- Modern Animated Background -->
-  <div class="glass-bg-animation" aria-hidden="true">
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="glow-orb orb-3"></div>
-  </div>
+<body>
 
-  <div class="app-layout">
-    <!-- Top System App Bar -->
-    <header class="app-top-bar glass-panel">
-      <div class="brand">
-        <span class="brand-logo">SMELT</span>
-        <span class="brand-suffix">NEXT</span>
-      </div>
-      
-      <div class="system-metrics">
-        <div class="metric-chip"><span class="label">SPD</span><span id="hud-speed" class="val">0.0 MB/s</span></div>
-        <div class="metric-chip"><span class="label">ETA</span><span id="hud-eta" class="val">Ready</span></div>
-        <div class="metric-chip"><span class="label">CPU</span><span id="hud-threads" class="val">—</span></div>
-      </div>
-      
-      <div class="system-status">
-        <div class="metric-chip"><span class="label">OUT</span><span id="hud-steps" class="val">0 MB</span></div>
-        <span class="sys-clock" id="sys-clock">--:--</span>
-      </div>
-    </header>
+  <!-- Hidden cartridge animation container for JS compatibility -->
+  <div id="cartridge-anim" style="display:none;"></div>
 
-    <main class="app-content">
-      <!-- Sidebar: Queue & Dropzone -->
-      <aside class="sidebar glass-panel">
+  <main class="soft-app-layout">
+    <div class="soft-card">
+      
+      <!-- ========================================================= -->
+      <!-- TOP DECK: Ingestion / Queue Management (Exact 50% Height)  -->
+      <!-- ========================================================= -->
+      <section class="card-deck top-deck" aria-label="Ingestion and Queue Deck">
         
-        <!-- View: Dropzone -->
-        <div id="view-dropzone" class="view-layer active">
-          <section id="dropzone" class="dropzone-area material-dropzone">
-            <div class="dropzone-inner">
-              <div class="upload-icon-wrapper">
-                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-              </div>
-              <h2 class="dropzone-title">Upload ROMs</h2>
-              <p class="dropzone-subtitle">Drop <span class="mono">.3DS, .CCI, .CIA, .CXI</span> here</p>
-              <label for="file-input" class="btn-material primary-btn">
-                Select Files
-                <input type="file" id="file-input" multiple hidden>
-              </label>
-              <div class="privacy-badge">Client-Side WebCrypto · 100% Private</div>
+        <!-- Header: Identity & System Status -->
+        <header class="soft-header">
+          <div class="brand">
+            <div class="brand-icon-box" aria-hidden="true">
+              <img src="assets/app-icon.png" alt="Smelt Logo" class="brand-app-icon">
             </div>
-            <!-- Hidden cartridge animation container for JS compatibility -->
-            <div id="cartridge-anim" style="display:none;"></div>
+            <span class="brand-name">Smelt</span>
+            <span class="brand-badge">NEXT</span>
+            <span class="brand-subtitle">3DS Decryptor</span>
+          </div>
+
+          <div class="header-actions">
+            <!-- 3DS Easter Eggs: Battery and WiFi with bolder presence -->
+            <div class="hardware-indicators hide-mobile">
+              <div class="indicator-icon wifi-icon active" title="StreetPass & WiFi Connected">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M1 9l2 2c5-5 13-5 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.07 7.07 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+                </svg>
+              </div>
+              <div class="indicator-icon battery-icon" title="Battery Full (100%)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/><line x1="6" y1="10" x2="6" y2="14" stroke-width="2.5"/><line x1="10" y1="10" x2="10" y2="14" stroke-width="2.5"/><line x1="14" y1="10" x2="14" y2="14" stroke-width="2.5"/>
+                </svg>
+              </div>
+            </div>
+            
+            <button class="pill-badge theme-toggle" id="theme-toggle-btn" type="button" aria-label="Toggle light or dark theme">
+              <span class="theme-icon-light">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+              </span>
+              <span class="theme-icon-dark">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              </span>
+            </button>
+            
+            <div class="pill-badge tech-badge" title="Hardware WebCrypto concurrency">
+              <span class="dot-green streetpass-pulse"></span>
+              <span>AES Active (<span id="hud-threads">10</span> Cores)</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- VIEW 1: Dropzone & Hero Ingestion -->
+        <div id="view-dropzone" class="view-layer active">
+
+          <section id="dropzone" class="soft-dropzone" aria-label="Drop ROM Cartridges">
+            <div class="dropzone-header-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>100% Private Decryption</span>
+            </div>
+            
+            <div class="dropzone-content">
+              <!-- Authentic 3DS Cartridge Mockup with Lavender Smelt Logo Label -->
+              <div class="cartridge-mockup-icon" aria-hidden="true">
+                <svg width="56" height="60" viewBox="0 0 56 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Cartridge Body with 3DS Right-Side Notch/Lip -->
+                  <path d="M4 8C4 4.68629 6.68629 2 10 2H42L52 10V52C52 55.3137 49.3137 58 46 58H10C6.68629 58 4 55.3137 4 52V8Z" fill="var(--cart-body-bg, #cbd5e1)" stroke="var(--cart-border, #94a3b8)" stroke-width="2"/>
+                  <!-- 3DS Top Bevel Line -->
+                  <path d="M7 6H40L49 13V51C49 53 47 55 45 55H11C9 55 7 53 7 51V6Z" fill="var(--cart-inner, #e2e8f0)"/>
+                  <!-- Cartridge Sticker / Label (Lavender/Violet) -->
+                  <rect x="10" y="15" width="36" height="32" rx="3" fill="#7c3aed" fill-opacity="0.95"/>
+                  <!-- Label Accent Gradient Strip -->
+                  <rect x="10" y="15" width="36" height="6" rx="2" fill="#a78bfa"/>
+                  <!-- Nintendo-style CTR Brand Text -->
+                  <text x="28" y="20" font-size="4" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif" letter-spacing="1">CTR-3DS</text>
+                  <!-- Anvil / Smelt Logo on Sticker -->
+                  <path d="M22 32v1h12v-1l-1.5-3h-1v-1.5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1V29h-1l-1.5 3zm2.5-4.5h7v1.5h-7V27.5zM28 35h-5a0.8 0.8 0 0 0-.8.8v.7a0.8 0.8 0 0 0 .8.8h10a0.8 0.8 0 0 0 .8-.8v-.7a0.8 0.8 0 0 0-.8-.8h-5z" fill="white"/>
+                  <!-- Label Text -->
+                  <text x="28" y="43" font-size="5" font-weight="900" fill="white" text-anchor="middle" font-family="sans-serif">SMELT</text>
+                  <!-- Cartridge Grip Notch / Arrow -->
+                  <path d="M25 51L28 48L31 51" stroke="var(--cart-border, #94a3b8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="dropzone-text-group">
+                <h2>Insert ROM Cartridges</h2>
+                <p>Drop <span class="tag">.3ds</span> or <span class="tag">.cci</span> files here.</p>
+              </div>
+            </div>
+            <label for="file-input" class="btn-primary accent-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+              <span>Browse Files</span>
+              <input type="file" id="file-input" accept=".3ds,.cci" multiple hidden>
+            </label>
           </section>
         </div>
 
-        <!-- View: Active Queue -->
+        <!-- VIEW 2: Active Queue Deck (Reusing Top Half) -->
         <div id="view-queue" class="view-layer">
-          <div class="queue-header">
-            <h2 class="section-title">Queue</h2>
-            <div class="queue-actions">
-              <label for="queue-file-input" class="icon-btn" title="Add ROMs">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                <input type="file" id="queue-file-input" multiple hidden>
-              </label>
-              <button id="btn-eject-top" class="icon-btn" title="Close Queue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <div class="queue-panel">
+            
+            <div class="queue-panel-header">
+              <div class="queue-panel-header-row1">
+                <div class="queue-title-group">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                  </svg>
+                  <h2>Active ROM Queue</h2>
+                </div>
+
+                <div class="queue-header-btn-group">
+                  <label for="queue-file-input" class="icon-btn-pill" title="Add more ROMs">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>Add</span>
+                    <input type="file" id="queue-file-input" accept=".3ds,.cci" multiple hidden>
+                  </label>
+
+                  <button id="btn-eject-top" class="icon-btn-pill" title="Return to Card Slot" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
+                      <line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/>
+                    </svg>
+                    <span>Eject</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="queue-header-actions">
+                <div class="select-wrapper">
+                  <label for="select-format" class="select-label">Output:</label>
+                  <select id="select-format" class="soft-select">
+                    <option value="same" selected>Default (Original)</option>
+                    <option value="3ds">.3DS (Decrypted)</option>
+                    <option value="cci">.CCI (Decrypted)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="empty-queue" class="empty-state">
+              <p>No ROMs queued. Drag files here or click Add to queue cartridges.</p>
+            </div>
+
+            <div id="queue-list" class="queue-list" role="list"></div>
+
+            <div class="queue-footer">
+              <div class="queue-footer-row1">
+                <label class="soft-checkbox" title="Auto-save decrypted ROMs to downloads">
+                  <input type="checkbox" id="check-auto-download" checked>
+                  <!-- Mini 3DS Cartridge Save Icon -->
+                  <svg class="cart-save-icon" width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 3C2 1.89543 2.89543 1 4 1H12L15 4V14C15 15.1046 14.1046 16 13 16H4C2.89543 16 2 15.1046 2 14V3Z" fill="var(--accent-primary)" stroke="currentColor" stroke-width="1"/>
+                    <rect x="4" y="5" width="8" height="7" rx="1" fill="white" fill-opacity="0.9"/>
+                    <path d="M6 9.5v.5h4v-.5l-.5-1h-.3v-.5a.3.3 0 0 0-.3-.3h-1.8a.3.3 0 0 0-.3.3v.5H6.5l-.5 1z" fill="var(--accent-primary)"/>
+                  </svg>
+                  <span>Auto-save smelted ROMs</span>
+                </label>
+
+                <!-- Functional SeedDB Upload Button -->
+                <label for="seeddb-file-input" id="btn-seeddb-upload" class="btn-secondary" title="Upload custom seeddb.bin file">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                  </svg>
+                  <span>Upload seeddb.bin</span>
+                  <input type="file" id="seeddb-file-input" accept=".bin" hidden>
+                </label>
+              </div>
+
+              <div class="footer-btn-group">
+                <button id="btn-clear-all" class="btn-secondary" type="button">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  <span>Clear</span>
+                </button>
+                <button id="btn-forge-all" class="btn-primary accent-btn" type="button" disabled>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <!-- Anvil icon -->
+                    <path d="M4 14v2h16v-2l-2-4h-1.5V8a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 7.5 8v2H6l-2 4zm3.5-6h9v2h-9V8zM12 18H5a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-7z"/>
+                  </svg>
+                  <span>Smelt All</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- EXACT 50/50 PHYSICAL SEPARATOR (With Dual Deck Indicators) -->
+      <!-- ========================================================= -->
+      <div class="soft-divider" aria-hidden="true">
+        <div class="dot orange" title="Input Deck Connected"></div>
+        <div class="divider-line"></div>
+        <div class="dot green" title="Crypto Engine Ready"></div>
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- BOTTOM DECK: Live Operations Terminal (Exact 50% Height)   -->
+      <!-- ========================================================= -->
+      <section class="card-deck bottom-deck" aria-label="Terminal and Telemetry Deck">
+        <div class="terminal-panel">
+          
+          <div class="terminal-header">
+            <div class="terminal-title-group">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+              <h2>Terminal</h2>
+            </div>
+
+            <div class="terminal-actions">
+              <button id="btn-clear-console" class="icon-btn-pill" title="Clear console log" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <span>Clear</span>
+              </button>
+              <button id="btn-export-console" class="icon-btn-pill" title="Export console log" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                <span>Export</span>
               </button>
             </div>
           </div>
-          
-          <div class="queue-options">
-            <select id="select-format" class="material-select">
-              <option value="same" selected>Keep original</option>
-              <option value="3ds">.3DS</option>
-              <option value="cci">.CCI</option>
-            </select>
-            <label class="material-checkbox">
-              <input type="checkbox" id="check-auto-download" checked>
-              <span>Auto-save</span>
-            </label>
+
+          <!-- Telemetry Ribbon HUD -->
+          <div class="terminal-telemetry-hud">
+            <div class="telemetry-item">
+              <span class="telemetry-label">THROUGHPUT</span>
+              <span id="hud-speed" class="telemetry-value">0.0 MB/s</span>
+            </div>
+            <div class="telemetry-divider"></div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">ESTIMATED TIME</span>
+              <span id="hud-eta" class="telemetry-value">Ready</span>
+            </div>
+            <div class="telemetry-divider"></div>
+            <div class="telemetry-item">
+              <span class="telemetry-label">WRITTEN</span>
+              <span id="hud-steps" class="telemetry-value">0 MB</span>
+            </div>
+            <div class="telemetry-divider hide-mobile"></div>
+            <div class="telemetry-item hide-mobile">
+              <span class="telemetry-label">SYS CLOCK</span>
+              <span id="sys-clock" class="telemetry-value">--:--</span>
+            </div>
           </div>
 
-          <div id="empty-queue" class="empty-state">No ROMs queued.</div>
-          <div id="queue-list" class="queue-list" role="list"></div>
-          
-          <div class="queue-footer">
-            <button id="btn-forge-all" class="btn-material forge-btn" disabled>Forge All</button>
+          <!-- Soft Pastel Terminal Screen -->
+          <div class="terminal-body-wrapper">
+            <div id="console-output" class="soft-terminal-screen" role="log" aria-live="polite"></div>
           </div>
-        </div>
-      </aside>
 
-      <!-- Main Area: Console -->
-      <section class="console-section glass-panel">
-        <div class="console-header">
-          <h2 class="section-title">Console Output</h2>
-          <div class="console-actions">
-            <button id="btn-touch-clear-log" class="text-btn">Clear</button>
-            <button id="btn-touch-export-log" class="text-btn">Export</button>
-          </div>
-        </div>
-        <div class="console-wrapper">
-          <div id="console-output" class="console-terminal material-terminal" role="log" aria-live="polite"></div>
         </div>
       </section>
-    </main>
-  </div>
+
+    </div>
+  </main>
 
   <!-- ROM Inspector Modal -->
   <div id="inspector-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal-dialog material-modal glass-panel">
-      <button class="modal-close material-close" aria-label="Close Inspector">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    <div class="modal-dialog soft-modal">
+      <button class="modal-close" aria-label="Close modal" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
       <div class="inspector-content"></div>
     </div>
   </div>
 
+  <!-- Hidden accessibility / JS compatibility listeners -->
   <div class="sr-only" aria-hidden="true">
-    <button id="btn-clear-all" type="button"></button>
-    <button id="btn-clear-console" type="button"></button>
-    <button id="btn-export-console" type="button"></button>
+    <button id="btn-touch-clear-log"></button>
+    <button id="btn-touch-export-log"></button>
+    <button id="touch-btn-forge"></button>
+    <button id="touch-btn-clear"></button>
+    <button id="touch-btn-format"></button>
+    <button id="btn-hw-home"></button>
+    <button id="dpad-up"></button>
+    <button id="dpad-down"></button>
+    <button id="btn-hw-a"></button>
+    <button id="btn-hw-b"></button>
+    <button id="btn-hw-x"></button>
+    <button id="btn-hw-y"></button>
+        <button id="btn-hw-start"></button>
+    <button id="btn-hw-select"></button>
   </div>
 
-  <script type="module" src="src/ui/app.js?v=20260821_19"></script>
+  <div id="eula-overlay" class="eula-overlay" style="display: none;">
+    <div class="eula-modal">
+      <div class="eula-header">
+        <div class="brand">
+          <div class="brand-icon-box" aria-hidden="true">
+            <img src="assets/app-icon.png" alt="Smelt Logo" class="brand-app-icon">
+          </div>
+          <span class="brand-name">Smelt</span>
+          <span class="brand-badge">NEXT</span>
+        </div>
+        <div style="width: 2px; height: 24px; background: var(--border-light); margin: 0 4px;" class="hide-mobile"></div>
+        <h2>END-USER LICENSE AGREEMENT AND TERMS OF SERVICE</h2>
+      </div>
+      
+      <div class="eula-content" id="eula-content">
+        <p class="eula-intro">IMPORTANT - READ CAREFULLY: This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or a single entity) and the developer of the Smelt software utility ("Software"). By clicking "Agree" and using the Software, you agree to be bound by the terms of this EULA. If you do not agree to the terms of this EULA, do not use the Software and click "Disagree & Exit".</p>
+        
+        <div class="eula-section">
+          <h3>0. DECLARATION OF REALITY AND INTENT</h3>
+          <p>By using Smelt, you acknowledge that this Software is simply a graphical user interface (frontend) that coordinates external, third-party CLI tools (ctrtool, makerom, and ctrdecrypt) to assist with file decryption. You agree that if your Mac runs hot enough to fry eggs, sounds like a commercial airplane preparing for takeoff, or if you run out of drive space because you attempted to decrypt massive file dumps all at once, that is entirely your issue. You certify that you are using this utility exclusively for personal backups of games you legally purchased and physically own, and you will not hold the developer responsible when your emulators act up because you chose the wrong configuration settings.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>1. DISCLAIMER OF AFFILIATION AND ENDORSEMENT</h3>
+          <p>This Software is an independent, unofficial utility. The developer of this Software is strictly independent and is NOT affiliated, associated, authorized, endorsed by, or in any way officially connected with Nintendo Co., Ltd., Nintendo of America, Inc., or any of their subsidiaries, affiliates, or licensors. All registered trademarks, including but not limited to 'Nintendo', '3DS', 'CTR', and 'Citra', are the exclusive property of their respective owners. The use of these names is for interoperability and descriptive purposes only and does not imply any association or endorsement.</p>
+        </div>
+        
+        <div class="eula-section">
+          <h3>2. STRICT PROHIBITION OF PIRACY AND COPYRIGHT INFRINGEMENT</h3>
+          <p>This Software is designed solely for the purpose of personal data archival, format shifting, and interoperability of legally obtained, physically owned game media.<br><br>
+          (a) You explicitly represent and warrant that any and all files (including ROMs, CIAs, CCIs, CXIs, DLCs, and Updates) processed through this Software have been legally dumped directly from hardware or media that you legally purchased and own.<br>
+          (b) You shall not use this Software to process, decrypt, distribute, or otherwise interact with unauthorized, pirated, or illegally downloaded copyrighted material.<br>
+          (c) The developer strictly condemns software piracy. The developer shall not be held responsible for your actions should you choose to violate international copyright laws.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>3. THIRD-PARTY COMPONENTS AND LICENSES</h3>
+          <p>This Software utilizes third-party command-line utilities (including but not limited to ctrtool, makerom, and ctrdecrypt) which are provided under their respective open-source licenses (such as the MIT License or GNU General Public License). These tools are executed in a sandbox environment and their respective licenses apply to their usage. The developer claims no ownership over these specific external binary components.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>4. IMPOSSIBILITY OF CIA REPACKAGING</h3>
+          <p>The developer expressly declines to offer the ability to output encrypted .cia containers. The mathematical and cryptographic reality is that generating a valid CIA container requires Nintendo's RSA Private Keys. Unless you are planning on personally breaking into Nintendo Headquarters in Kyoto, bypassing their biometric security, and stealing their internal signing servers, any CIA you generate would be universally rejected by standard hardware and emulators anyway. Therefore, Smelt outputs .cci or .3ds formats exclusively.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>5. MIT LICENSE & DISCLAIMER OF WARRANTY</h3>
+          <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.<br><br>
+          Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>6. LIMITATION OF LIABILITY</h3>
+          <p>IN NO EVENT SHALL THE AUTHORS, DEVELOPERS, OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.<br><br>
+          Under no circumstances shall the developer be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; hardware failure; thermal damage to your machine; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this Software, even if advised of the possibility of such damage.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>7. INDEMNIFICATION</h3>
+          <p>You agree to indemnify, defend, and hold harmless the developer from and against any and all claims, liabilities, damages, losses, costs, expenses, or fees (including reasonable attorneys' fees) that arise from your violation of this EULA or your unauthorized use of the Software. Should your actions attract legal scrutiny or litigation, you assume sole and absolute responsibility.</p>
+        </div>
+
+        <div class="eula-section">
+          <h3>8. SEVERABILITY</h3>
+          <p>If any provision of this EULA is held to be unenforceable or invalid, such provision will be changed and interpreted to accomplish the objectives of such provision to the greatest extent possible under applicable law, and the remaining provisions will continue in full force and effect.</p>
+        </div>
+      </div>
+      
+      <div class="eula-divider"></div>
+      
+      <label class="eula-checkbox-container" id="eula-checkbox-container" style="opacity: 0.5; pointer-events: none;">
+        <input type="checkbox" id="eula-checkbox" disabled>
+        <span class="eula-checkbox-text">I certify that I have read the terms and agree to be bound by them.</span>
+      </label>
+
+      <div class="eula-footer">
+        <button id="eula-disagree-btn" class="eula-btn-secondary">Disagree & Exit</button>
+        <button id="eula-agree-btn" class="eula-btn-primary" disabled>Agree & Open</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Toggle & Synchronization Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('theme-toggle-btn');
+      const themeLabel = document.getElementById('theme-label');
+
+      function updateThemeUI(theme) {
+        if (themeLabel) {
+          themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
+        }
+      }
+
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      updateThemeUI(currentTheme);
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const now = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', now);
+          localStorage.setItem('smelt-theme', now);
+          updateThemeUI(now);
+        });
+      }
+
+      // Listen for system theme changes if user hasn't manually pinned one
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('smelt-theme')) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', newTheme);
+          updateThemeUI(newTheme);
+        }
+      });
+      
+      // EULA Logic
+      const eulaOverlay = document.getElementById('eula-overlay');
+      const eulaCheckbox = document.getElementById('eula-checkbox');
+      const eulaAgreeBtn = document.getElementById('eula-agree-btn');
+      const eulaDisagreeBtn = document.getElementById('eula-disagree-btn');
+      const eulaContent = document.getElementById('eula-content');
+      const eulaCheckboxContainer = document.getElementById('eula-checkbox-container');
+
+      // Always show EULA on load
+      if (eulaOverlay) {
+        eulaOverlay.style.display = 'flex';
+      }
+
+      if (eulaContent && eulaCheckboxContainer) {
+        // Automatically enable if content is too short to scroll
+        const checkScroll = () => {
+          if (eulaContent.scrollTop + eulaContent.clientHeight >= eulaContent.scrollHeight - 50) {
+            eulaCheckbox.disabled = false;
+            eulaCheckboxContainer.style.opacity = '1';
+            eulaCheckboxContainer.style.pointerEvents = 'auto';
+          }
+        };
+        eulaContent.addEventListener('scroll', checkScroll);
+        // Check once on load in case it doesn't need scrolling
+        setTimeout(checkScroll, 100);
+      }
+
+      if (eulaCheckbox && eulaAgreeBtn) {
+        eulaCheckbox.addEventListener('change', (e) => {
+          eulaAgreeBtn.disabled = !e.target.checked;
+        });
+      }
+
+      if (eulaAgreeBtn) {
+        eulaAgreeBtn.addEventListener('click', () => {
+          if (eulaCheckbox.checked) {
+            eulaOverlay.style.display = 'none';
+          }
+        });
+      }
+
+      if (eulaDisagreeBtn) {
+        eulaDisagreeBtn.addEventListener('click', () => {
+          window.location.href = 'about:blank'; // Or close the window if allowed
+        });
+      }
+    });
+  </script>
+
+  <script type="module" src="src/ui/app.js?v=20260821_24"></script>
 </body>
 </html>
